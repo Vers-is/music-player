@@ -1,0 +1,115 @@
+.top-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    height: 7vh;
+}
+
+.profile-icon {
+    width: auto;
+    height: 100%;
+    aspect-ratio: 1/1;
+    background-color: var(--accent);
+    border-radius: 999px;
+}
+
+.search-container {
+    padding: 5px;
+    display: flex;
+    justify-content: space-between;
+    width: 90%;
+    background-color: var(--transparent-background);
+    border-radius: 40px;
+    border: solid 2px var(--transparent-accent);
+    transition: all .3s ease;
+}
+
+.search-container:hover {
+    border: solid 2px white;
+}
+
+input {
+    padding: 10px 30px;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+}
+
+.search-button {
+    background-image: url('/images/icons/search-white.png');
+    background-color: var(--accent);
+    border-radius: 50px;
+    background-repeat: no-repeat;
+    background-size: auto 50%;
+    background-position: center;
+    width: 4.5vw;
+    height: 100%;
+    transition: all .3s ease;
+}
+
+.search-button:hover {
+    background-color: rgb(154, 97, 195);
+}
+
+.mood, .charts, .item-info-cover {
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+}
+
+.mood-container {
+    gap: 2vw;
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.mood-item {
+    transition: all .3s ease;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 15vw;
+    height: 100%;
+    aspect-ratio: 1/1;
+    padding: 2vh 2vw;
+    border-radius: 30px;
+    border: solid 1.5px var(--transparent-accent);
+}
+
+.chart-item {
+    background-color: rgb(66, 66, 167);
+    display: flex;
+}
+
+.item-info-cover {
+    font-size: 10px;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(3, 2fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+}
+
+#sad-mood{
+    background: linear-gradient(160deg, blue 0%, pink 100%);
+}
+
+#happy-mood{
+    background: linear-gradient(160deg, rgb(245, 168, 0) 0%, rgb(206, 51, 164) 100%);
+}
+
+#calm-mood{
+    background: linear-gradient(160deg, rgb(0, 245, 20) 0%, rgb(115, 37, 205) 100%);
+}
+
+.mood-item:hover{
+    transform: scale(1.1);
+    border-color: white;
+}
+
+
