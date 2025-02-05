@@ -1,0 +1,137 @@
+h2 {
+    text-align: left;
+    width: 100%;
+    font-size: 30px;
+    margin: -50px;
+}
+
+.artists {
+    display: flex;
+    gap: 50px;
+    padding: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+    background-color: var(--background-secondary);
+    border-radius: 10px;
+    width: 100%;
+}
+
+.artist-card {
+    flex: 0 0 auto;
+    width: 200px;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    scroll-snap-align: start;
+}
+
+.artist-card:hover {
+    transform: scale(1.05);
+}
+
+.artist-card img {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: 0.3s ease;
+}
+
+.artist-card img:hover {
+    filter: brightness(50%);
+    opacity: 0.9;
+}
+
+.artist-card p {
+    margin-top: 10px;
+    font-size: 16px;
+    color: white;
+}
+
+.artist-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.artists::-webkit-scrollbar {
+    display: none;
+}
+
+.playlists {
+    display: flex;
+    gap: 50px;
+    padding: 20px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+    background-color: var(--background-secondary);
+    border-radius: 10px;
+    width: 100%;
+}
+
+.playlist-card {
+    flex: 0 0 auto;
+    width: 200px;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    transition: transform 0.3s ease;
+    scroll-snap-align: start;
+}
+
+.playlist-card:hover {
+    transform: scale(1.05);
+}
+
+.playlist-card img {
+    width: 220px;
+    height: 220px;
+    border-radius: 15%;
+    object-fit: cover;
+    transition: 0.3s ease;
+}
+
+
+.playlist-card img:hover {
+    filter: brightness(50%);
+    opacity: 0.9;
+}
+
+.playlist-card p {
+    margin-top: 10px;
+    font-size: 16px;
+    color: white;
+}
+
+.playlist-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.playlists::-webkit-scrollbar {
+    display: none;
+}
+
+.history {
+    padding: 20px;
+    background-color: var(--background-secondary);
+    border-radius: 10px;
+
+    margin-top: 30px;
+}
+
+.history ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.history li {
+    background-color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: white;
+}
