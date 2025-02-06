@@ -79,21 +79,7 @@ input {
     border: solid 1.5px var(--transparent-accent);
 }
 
-.chart-item {
-    background-color: rgb(66, 66, 167);
-    display: flex;
-}
 
-.item-info-cover {
-    font-size: 10px;
-}
-
-.charts-container {
-    display: grid;
-    grid-template-columns: repeat(3, 2fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 10px;
-}
 
 #sad-mood{
     background: linear-gradient(160deg, blue 0%, pink 100%);
@@ -112,4 +98,30 @@ input {
     border-color: white;
 }
 
+/*           CHARTS             */
 
+
+.chart-item {
+    background-color: var(--transparent-background);
+    display: flex;
+    border-radius: 10px;
+    border: 1.5px solid var(--transparent-accent);
+}
+
+.item-info-cover {
+    font-size: 10px;
+}
+
+.charts-container {
+    display: grid;
+    grid-template-columns: repeat(3, 2fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.chart-play-icon {
+    background-image: url("/images/icons/play-white.png");
+    width: 100%; 
+    height: auto;
+    aspect-ratio: 1/1;
+}
