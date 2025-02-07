@@ -1,0 +1,132 @@
+.title {
+    text-align: start;
+    width: 100%;
+    margin: 20px 0 -20px 0;
+}
+
+
+.artists, .albums, .history, .history-container {
+    width: 100%;
+    display: flex;
+    white-space: nowrap;
+    scroll-snap-type: x mandatory;
+}
+
+
+.artists, .albums {
+    overflow-x: scroll;
+    overflow-y: hidden;
+} 
+
+.artist-card, .album-card {
+    flex: 0 0 auto;
+    width: 30%;
+    height: auto;
+    aspect-ratio: 1/1;
+    text-align: center;
+    transition: transform 0.3s ease;
+    scroll-snap-align: start;
+}
+
+.artist-card:hover, .album-card:hover {
+    transform: scale(1.05);
+}
+
+.artist-card img {
+    border: 1px solid var(--transparent-accent);
+    width: 80%;
+    height: auto;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    object-fit: cover;
+    transition: 0.3s ease;
+}
+
+.artist-card img:hover, .album-card img:hover {
+    filter: brightness(60%);
+    opacity: 0.9;
+}
+
+.artist-card p, .album-card p {
+    margin-top: 2vh;
+    font-size: 16px;
+}
+
+.artists::-webkit-scrollbar, .albums::-webkit-scrollbar {
+    display: none;
+}
+
+/*      ALBUMS       */
+
+
+.album-card img {
+    border: 1px solid var(--transparent-accent);
+    width: 90%;
+    height: auto;
+    aspect-ratio: 1/1;
+    border-radius: 15%;
+    object-fit: cover;
+    transition: 0.3s ease;
+}
+
+/*      HISTORY      */
+
+.history {
+    justify-content: center;
+    align-items: center;
+}
+
+.history-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.history-item {
+    background: linear-gradient(135deg, rgba(171, 166, 166, 0.1), rgba(226, 226, 245, 0.2));
+    display: flex;
+    align-items: center;
+    padding: 5% 5% 2% 5%;
+    border-radius: 10px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+    backdrop-filter: blur(10px);
+    justify-content: space-between;
+}
+
+.history-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
+}
+
+.track-info {
+    font-size: 16px;
+}
+
+.track-artist {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.item-info-cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px; 
+}
+
+.history-play-icon {
+    width: clamp(10px, 30px, 40px);
+    height: auto;
+    aspect-ratio: 1/1;
+}
+
+@media (max-width:780px) {
+    .track-artist {
+        font-size: 8px;
+    }
+
+    .track-info {
+        font-size: 12px;
+    }
+}
+

@@ -1,8 +1,12 @@
+.title {
+    text-align: start;
+    width: 100%;
+}
+
 .top-content {
     display: flex;
     justify-content: space-between;
     width: 100%;
-    height: 7vh;
 }
 
 .profile-icon {
@@ -60,7 +64,10 @@ input {
 .mood-container {
     gap: 2vw;
     display: flex;
-    justify-content: space-evenly;
+    justify-content: center;
+}
+
+.mood {
     width: 100%;
 }
 
@@ -74,12 +81,9 @@ input {
     width: 15vw;
     height: 100%;
     aspect-ratio: 1/1;
-    padding: 2vh 2vw;
     border-radius: 30px;
     border: solid 1.5px var(--transparent-accent);
 }
-
-
 
 #sad-mood{
     background: linear-gradient(160deg, blue 0%, pink 100%);
@@ -100,28 +104,65 @@ input {
 
 /*           CHARTS             */
 
+.charts {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
 
 .chart-item {
-    background-color: var(--transparent-background);
+    background: linear-gradient(135deg, rgba(171, 166, 166, 0.1), rgba(226, 226, 245, 0.2));
     display: flex;
+    align-items: center;
+    padding: 5% 5% 2% 5%;
     border-radius: 10px;
-    border: 1.5px solid var(--transparent-accent);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease;
+    backdrop-filter: blur(10px);
+    justify-content: space-between;
+}
+
+.chart-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
+}
+
+.track-info {
+    font-size: 16px;
+}
+
+.track-artist {
+    font-size: 10px;
+    opacity: 0.8;
 }
 
 .item-info-cover {
-    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px; 
 }
 
-.charts-container {
-    display: grid;
-    grid-template-columns: repeat(3, 2fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 10px;
-}
 
 .chart-play-icon {
-    background-image: url("/images/icons/play-white.png");
-    width: 100%; 
+    width: clamp(10px, 30px, 40px);
     height: auto;
     aspect-ratio: 1/1;
+}
+
+@media (max-width:780px) {
+    .track-artist {
+        font-size: 8px;
+    }
+
+    .track-info {
+        font-size: 12px;
+    }
 }

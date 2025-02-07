@@ -1,5 +1,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap');
 
+/* * {
+    border: solid 1px red;
+} */
+
+
 * {
     font-family: "Unbounded", serif;
     color: white;
@@ -10,10 +15,6 @@
     list-style: none;
     outline: none;
     font-size: 10px;
-}
-
-body {
-    overflow-x: hidden; 
 }
 
 ::-webkit-scrollbar {
@@ -52,40 +53,48 @@ body {
 
 body {
     display: grid;
-    grid-template-columns: 20vw 80vw;
+    grid-template-columns: 20vw 1fr;
     background-color: var(--background-main);
     width: 100vw;
     height: 100vh;
+    overflow-x: hidden;
 }
 
 .main-container {
-    border-radius: 40px;
-    border: 1px solid var(--transparent-accent);
-    gap: 10vh;
-    padding: 5vh 5vw;
-    margin: 2vh 2vw;
-    background-color: var(--background-secondary);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
- .nav_links {
-    display: flex;
-    font-size: 12px;
-    padding: 3vh 0 3vh 3vw;
-}
-
-.nav-bar {
-    height: 100%;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-self: center;
-    flex-direction: column;
-}
+    
+        border-radius: 40px;
+        border: 1px solid var(--transparent-accent);
+        gap: 10vh;
+        padding: 10vh 5vw;
+        margin: 2vh 2vw 2vh 20vw;
+        width: 75vw;
+        background-color: var(--background-secondary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+          overflow-x: visible;
+    }
+    
+     .nav_links {
+        display: flex;
+        font-size: 12px;
+        padding: 3vh 0 3vh 3vw;
+    }
+    
+    .nav-bar {
+        position: fixed;
+        top: 0;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-self: center;
+        flex-direction: column;
+    }
 
 .title {
-    font-size: 16px;
+    margin-bottom: 5vh;
+    font-size: 18px;
+    font-weight: 800;
 }
 
 .circle_plus {
@@ -98,3 +107,9 @@ body {
     background-repeat: no-repeat;
 }
     
+.track-artist {
+    width: clamp(10px, 30px, 40px);
+    height: auto;
+    aspect-ratio: 1/1;
+}
+
