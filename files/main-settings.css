@@ -120,13 +120,14 @@ body {
 
 .logotype {
     aspect-ratio: 1/2;
-    width: 70%;
+    width: 50%;
     height: 20vh;
     background-image: url("/images/logo.PNG");
     background-position: center;
     position: absolute;
     top: 5vh;
-    left: 3vw;
+    left: 4vw;
+    border-bottom: solid 1px var(--transparent-accent);
 }
 
 .title {
@@ -195,20 +196,30 @@ header {
     border-radius: 10px;
     backdrop-filter: blur(10px);
     justify-content: space-between;
+    border: 1px solid var(--transparent-accent);
 }
 
-.grid-item:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.15);
+.play-icon:hover {
+    transform: scale(1.1);
 }
 
 .track-info {
-    font-size: 16px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.track-info:hover {
+    transform: scale(1.05);
+}
+
+.track-artist-image:hover {
+    filter: brightness(80%);
+    opacity: 0.9;
 }
 
 .track-artist {
     font-size: 10px;
-    opacity: 0.8;
+    color: var(--accent);
 }
 
 .item-info-cover {

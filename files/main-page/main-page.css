@@ -3,11 +3,12 @@
      aspect-ratio: 1/1;
  }
 
-.artists, .albums {
+.artists, .content-cover {
     overflow-x: scroll;
     overflow-y: hidden;
     white-space: nowrap;
     scroll-snap-type: x mandatory;
+    mask-image: linear-gradient(to left, transparent, #282948 5% ); 
 }
 
 .artists {
@@ -20,6 +21,7 @@
     text-align: center;
     scroll-snap-align: start;
 }
+
 
 .artist-card:hover, .album-card:hover {
     transform: scale(1.05);
@@ -53,7 +55,7 @@
     margin-top: 2vh;
 }
 
-.artists::-webkit-scrollbar, .albums::-webkit-scrollbar {
+.artists::-webkit-scrollbar, .content-cover::-webkit-scrollbar {
     display: none;
 }
 
