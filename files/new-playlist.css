@@ -1,3 +1,9 @@
+.close {
+    margin-bottom: 4vh;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--text-color);
+}
 
 .modal {
     display: none;
@@ -6,24 +12,118 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); 
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
     justify-content: center;
     align-items: center;
     z-index: 1000;
 }
 
 .modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
+    width: fit-content;
+    height: fit-content;
+    background: var(--background-secondary);
+    padding: 5vh 5vw;
+    border-radius: 20px;
+    border: 1.5px solid var(--transparent-accent);
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.up {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+}
+
+.right, .left {
+    display: flex;
+    flex-direction: column;
+    gap: 2vh;
+}
+
+.left {
     text-align: center;
 }
 
-.close {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    font-size: 24px;
+.right {
+    align-items: end;
+}
+
+.create-cover {
+    gap: 5vw;
+    display: grid;
+    grid-template-columns: 15vw 20vw;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cover-img {
+    aspect-ratio: 1/1;
+    background-color: var(--transparent-background);
+    border: 2px dashed var(--transparent-accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer; 
+}
+
+.cover-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-img:hover {
+    border: 2px dashed white;
+    background-image: url("/images/icons/img-white.png");
+}
+
+.cover-img {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 50% 50%;
+    background-image: url("/images/icons/img-purple.png");
+}
+
+.playlist-name, textarea {
+    padding: 2vh 2vw;
+    width: 100%;
+    background-color: var(--transparent-background);
+    border-radius: 10px;
+    border: solid 1.5px var(--transparent-accent);
+}
+
+.playlist-name:hover, textarea:hover {
+    border: solid 1.5px white;
+}
+
+.description {
+    height: 20vh;
+    resize: none;
+}
+
+textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.save-button {
+    padding: 2vh 2vw;
+    background-color: var(--accent);
+    border-radius: 40px;
+    border: none;
     cursor: pointer;
+}
+
+.save-button:hover {
+    background-color: rgb(154, 97, 195);
+}
+
+.subtitle {
+    font-size: 12px;
+}
+
+#cover-preview {
+    border-radius: 10px;
 }
