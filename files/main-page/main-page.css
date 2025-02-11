@@ -1,6 +1,6 @@
 .artist-card, .album-card, .album-card img, .artist-card img {
     height: auto;
-     aspect-ratio: 1/1;
+    aspect-ratio: 1/1;
  }
 
 .artists, .content-cover {
@@ -58,8 +58,3 @@
 .artists::-webkit-scrollbar, .content-cover::-webkit-scrollbar {
     display: none;
 }
-
-
-
-
-

@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../main-settings.css">
     <link rel="stylesheet" href="../search-page/search.css">
     <link rel="stylesheet" href="../new-playlist.css">
+    <link rel="stylesheet" href="../login-users.css">
     <script src="../functions.js" defer></script>
 </head>
 <body>
@@ -48,8 +49,23 @@
                 <input type="text" placeholder="Что ищем?" class="search-input">
                 <div class="search-button"></div>
             </div>
-            <div class="profile-icon"></div>
-        </header>      
+            <div class="profile-icon" onclick="openModal()"></div>
+        </header>
+
+        <!---------   LOGIN USERS  WINDOW     ---------->
+        <div id="loginModal" class="modal-user">
+            <div class="modal-user-content">
+                <div class="modal-header">
+                    <h2>Вход</h2>
+                    <span class="close-user" onclick="closeModal()">&times;</span>
+                </div>
+                <input type="text" id="username" placeholder="Логин" class="regis-input">
+                <input type="password" id="password" placeholder="Пароль" class="regis-input">
+                <button onclick="checkLogin()">Войти</button>
+                <p id="errorMessage" style="color: red; display: none;">Неверный логин или пароль!</p>
+            </div>
+        </div>
+    
 
         <!---------   MOOD SECTION     ---------->
         

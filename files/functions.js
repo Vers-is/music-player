@@ -74,3 +74,33 @@ document.querySelectorAll('.nav_links').forEach(link => {
         }
     }
 });
+
+///////////////// WINDOW -- USERS //////////////////
+
+const users = {
+    "eldana": "220906",
+    "vers": "12345"
+};
+
+function openModal() {
+    document.getElementById("loginModal").style.display = "flex";
+}
+
+function closeModal() {
+    document.getElementById("loginModal").style.display = "none";
+    document.getElementById("username").value = ""; 
+    document.getElementById("password").value = ""; 
+    document.getElementById("errorMessage").style.display = "none"; 
+}
+
+function checkLogin() {
+    const username = document.getElementById("username").value;
+    const password = document.getElementById("password").value;
+
+    if (users[username] && users[username] === password) {
+        alert("Добро пожаловать, " + username + "!");
+        closeModal();
+    } else {
+        document.getElementById("errorMessage").style.display = "block";
+    }
+}
