@@ -197,12 +197,7 @@ header {
     border-radius: 10px;
     backdrop-filter: blur(10px);
     justify-content: space-between;
-    border: 1px solid var(--transparent-accent);
 }
-
-.grid-item:hover {
-    border-color: white;
-}    
 
 .play-icon:hover {
     transform: scale(1.1);

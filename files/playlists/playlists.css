@@ -50,7 +50,7 @@
     transform: scale(1.03);
 }
 
-.fav-playlist img, .mini-playlist img {
+.fav-playlist img, .mini-playlist img, .love-icon {
     height: auto;
     aspect-ratio: 1/1;
     border: 1px solid #fff;
@@ -85,5 +85,32 @@ p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* gap: 5px; */
+}
+
+.fav-playlist {
+    position: relative; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: fit-content;
+}
+
+.love-icon {
+    position: absolute;
+    top: 4vh;
+    right: 2vw;
+    width: 30px;
+    background: url('/images/icons/heart-white-painted.png') no-repeat center/contain;
+    z-index: 10;
+    border: none;
+}
+
+.fav-playlist a {
+    display: block;
+    position: relative; 
+}
+
+.fav-playlist img {
+    display: block;
+    border-radius: 30px;
 }

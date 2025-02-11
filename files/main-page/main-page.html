@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../main-settings.css">
     <link rel="stylesheet" href="../main-page/main-page.css">
     <link rel="stylesheet" href="../new-playlist.css">
+    <link rel="stylesheet" href="../login-users.css">
 
     <script src="../functions.js" defer></script>
 </head>
@@ -44,24 +45,31 @@
 
         <header class="top-content">
             <div class="title">Исполнители</div>
-            <div class="profile-icon"></div>
-        </header>      
+            <div class="profile-icon" onclick="openModal()"></div>
+        </header>  
+        
+        <!---------   LOGIN USERS  WINDOW     ---------->
+        <div id="loginModal" class="modal-user">
+            <div class="modal-user-content">
+                <div class="modal-header">
+                    <h2>Вход</h2>
+                    <span class="close-user" onclick="closeModal()">&times;</span>
+                </div>
+                <input type="text" id="username" placeholder="Логин" class="regis-input">
+                <input type="password" id="password" placeholder="Пароль" class="regis-input">
+                <button onclick="checkLogin()">Войти</button>
+                <p id="errorMessage" style="color: red; display: none;">Неверный логин или пароль!</p>
+            </div>
+        </div>
+
 
         <!---------   ARTISTS     ---------->
 
-
         <div class="artists">
             <div class="artist-card">
-                <a href="../artists/artist1.html">
-                    <img src="/images/artists/50Cent.jpeg" alt="50 Cent">
-                    <p>50 Cent</p>
-                </a>
-            </div>
-
-            <div class="artist-card">
-                <a href="../artists/artist2.html">
-                    <img src="/images/artists/dora.jpeg" alt="Dora">
-                    <p>Дора</p>
+                <a href="../artists/artist7.html">
+                    <img src="/images/artists/eminem.jpeg" alt="Eminem">
+                    <p>Eminem</p>
                 </a>
             </div>
 
@@ -73,9 +81,16 @@
             </div>
 
             <div class="artist-card">
-                <a href="../artists/artist4.html">
-                    <img src="/images/artists/mirbek.jpeg" alt="Мирбек Атабеков">
-                    <p>Мирбек Атабеков</p>
+                <a href="../artists/artist2.html">
+                    <img src="/images/artists/dora.jpeg" alt="Dora">
+                    <p>Дора</p>
+                </a>
+            </div>
+
+            <div class="artist-card">
+                <a href="../artists/artist1.html">
+                    <img src="/images/artists/50Cent.jpeg" alt="50 Cent">
+                    <p>50 Cent</p>
                 </a>
             </div>
 
@@ -86,19 +101,6 @@
                 </a>
             </div>
 
-            <div class="artist-card">
-                <a href="../artists/artist6.html">
-                    <img src="/images/artists/kanya.png" alt="Kanye West">
-                    <p>Kanye West</p>
-                </a>
-            </div>
-
-            <div class="artist-card">
-                <a href="../artists/artist7.html">
-                    <img src="/images/artists/eminem.jpeg" alt="Eminem">
-                    <p>Eminem</p>
-                </a>
-            </div>
 
         </div>
 
