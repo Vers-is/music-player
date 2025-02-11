@@ -1,7 +1,8 @@
 .artist-card, .album-card, .album-card img, .artist-card img {
     height: auto;
-     aspect-ratio: 1/1;
+    aspect-ratio: 1/1;
  }
+ /* fhhf */
 
 .artists, .content-cover {
     overflow-x: auto;
@@ -62,5 +63,9 @@
 
 .artists::-webkit-scrollbar, .content-cover::-webkit-scrollbar {
     display: none;
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c

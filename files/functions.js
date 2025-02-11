@@ -103,4 +103,8 @@ function checkLogin() {
     } else {
         document.getElementById("errorMessage").style.display = "block";
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
