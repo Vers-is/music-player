@@ -20,15 +20,16 @@
 /*      MEDIA        */
 
 @media (max-width:780px) {
-    .track-artist {
-        font-size: 8px;
-    }
-
-    .track-info {
-        font-size: 12px;
+    * {
+        font-size: 8px !important;
     }
 }
 
+@media (min-width: 1280px) {
+    .title {
+        font-size: 24px !important;
+    }    
+}
 /*                   */
 
 ::-webkit-scrollbar {
