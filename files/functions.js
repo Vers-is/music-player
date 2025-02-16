@@ -122,7 +122,6 @@ document.getElementById("profileMenu").style.display = "none";
 
 const confirmLogout = confirm("Вы точно хотите выйти из аккаунта?");
 if (confirmLogout) {
-    localStorage.removeItem(`history_${loggedInUser}`); // Удаляем историю перед сбросом пользователя
     localStorage.removeItem("loggedInUser"); 
     loggedInUser = null; 
     isAuthenticated = false;
@@ -132,12 +131,7 @@ if (confirmLogout) {
 
     favorites = [];
     localStorage.removeItem("currentFavorites");
-
-
-    history = []; // Очищаем историю
-    localStorage.removeItem("currentHistory");
     
-
     const gridItems = document.querySelectorAll(".grid-item");
     gridItems.forEach(item => {
         item.innerHTML = "";
@@ -146,8 +140,6 @@ if (confirmLogout) {
 
     renderFavorites();
     updateFavoriteUI();
-
-    renderHistory(); 
 
     alert("Вы вышли из аккаунта.");
     location.reload();
@@ -198,17 +190,11 @@ if (users[username] && users[username] === password) {
     updateProfileIcon(username);
     updateProfileName(username);
     isAuthenticated = true;
-
     closeModal();
-    
+    location.reload();
     loadFavorites();  
     renderFavorites(); 
     updateFavoriteUI(); 
-
-    loadHistory();  // Загружаем историю для пользователя
-    renderHistory(); // Отображаем историю
-
-
 
 } else {
     document.getElementById("errorMessage").style.display = "block";
@@ -222,29 +208,20 @@ function updateProfileName(username) {
 }
 
 window.onload = function() {
-    loggedInUser = getCurrentUser(); // Загружаем текущего пользователя
+  if (loggedInUser) {
+      isAuthenticated = true;
+      updateProfileIcon(loggedInUser);
+      updateProfileName(loggedInUser);
 
-    if (loggedInUser) {
-        isAuthenticated = true;
-        updateProfileIcon(loggedInUser); // Устанавливаем аватарку
-        updateProfileName(loggedInUser); // Устанавливаем никнейм
-
-        loadFavorites(); 
-        renderFavorites();
-        updateFavoriteUI(); 
-
-        loadHistory();  
-        renderHistory();
-    } else {
-        isAuthenticated = false;
-        updateProfileIcon("default"); // Показываем дефолтный аватар
-        updateProfileName("Гость");
-
-        history = []; 
-        renderHistory();
-    }
+      loadFavorites(); 
+      renderFavorites();
+      updateFavoriteUI(); 
+  } else {
+      isAuthenticated = false;
+      updateProfileIcon("default");
+      updateProfileName("Гость");
+  }
 };
-
 
 ///////////////// PLAYER //////////////////
 
@@ -433,6 +410,88 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     updateSongInfo();
   }
+
+  ///////   CHARTS   ///////
+
+  const charts = [
+    { name: "В темноте", artist: "Noize MC", image: "/images/covers/charts/noize mc - nocomments.png", src: "/songs/charts/Noize MC - В темноте.mp3" },
+    { name: "Душнила", artist: "idst", image: "/images/covers/charts/idst - Душнила.png", src: "/songs/charts/idst - Душнила.mp3" },
+    { name: "Тут нужен я", artist: "Красные звезды", image: "/images/covers/charts/Красные звезды - Свобода2012.png", src: "/songs/charts/Красные Звёзды - Тут нужен я.mp3" },
+    { name: "Семь восьмых", artist: "Ключевое слово", image: "/images/covers/charts/Ключевое слово - 78.png", src: "/songs/charts/Ключевое слово - Семь восьмых.mp3" },
+    { name: "Creep", artist: "Radiohead", image: "/images/covers/charts/radiohead - pablohoney.png", src: "/songs/charts/Radiohead - Creep.mp3" },
+    { name: "Мое море", artist: "Noize MC", image: "/images/covers/charts/noize mc - thegreatesrhits.png", src: "/songs/charts/Noize MC - Моё море.mp3" },
+    { name: "Выдыхай", artist: "Noize MC", image: "/images/covers/charts/noize mc - thegreatesrhits.png", src: "/songs/charts/Noize MC - Выдыхай.mp3" },
+    { name: "И это придёт", artist: "Гр. Полухутенко", image: "/images/covers/charts/полухутенко - ребра.png", src: "/songs/charts/Гр. Полухутенко - И это придёт.mp3" },
+    { name: "Купидоны", artist: "Слава КПСС", image: "/images/covers/charts/слава кппс - лпнл.png", src: "/songs/charts/Слава КПСС - Купидоны.mp3" },
+  ];
+ 
+  const playIcons = document.querySelectorAll('.grid-item .play-icon');
+
+playIcons.forEach((icon, index) => {
+    icon.addEventListener('click', () => {
+        const song = charts[index];
+        playSongFromCharts(song, index);
+    });
+});
+
+function playSongFromCharts(song, chartIndex) {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    const currentSongSrc = localStorage.getItem("songSrc");
+
+    if (currentSongSrc === song.src && !audioPlayer.paused) {
+        audioPlayer.pause();
+        updateIcons(chartIndex, false);
+        localStorage.setItem("isPlaying", "false");
+        return;
+    }
+
+    songName.textContent = song.name;
+    songArtist.textContent = song.artist;
+    songImage.src = song.image;
+    audioPlayer.src = song.src;
+    audioPlayer.play().then(() => {
+        updateIcons(chartIndex, true);
+        localStorage.setItem("isPlaying", "true");
+    }).catch((error) => {
+        console.error("Ошибка при воспроизведении песни:", error);
+    });
+
+    localStorage.setItem("currentSongIndex", chartIndex);
+    localStorage.setItem("songSrc", song.src);
+    localStorage.setItem("songName", song.name);
+    localStorage.setItem("songArtist", song.artist);
+
+    updatePlayIcon(true);
+}
+
+function updateIcons(currentChartIndex, isPlaying) {
+    playIcons.forEach((icon, index) => {
+        if (index === currentChartIndex) {
+            icon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
+        } else {
+            icon.src = "/images/icons/play-white.png";
+        }
+    });
+}
+
+function updatePlayIcon(isPlaying) {
+    playIcon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
+}
+
+audioPlayer.addEventListener("pause", () => {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    updateIcons(currentSongIndex, false);
+    updatePlayIcon(false);
+});
+
+audioPlayer.addEventListener("ended", () => {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    updateIcons(currentSongIndex, false);
+    updatePlayIcon(false);
+    localStorage.setItem("isPlaying", "false"); 
+});
+  
+/////////////////
 
   audioPlayer.addEventListener("play", () => {
     isPlaying = true;
@@ -671,6 +730,7 @@ document.addEventListener("DOMContentLoaded", () => {
           favorites = [];
           return;
       }
+
       const allFavorites = JSON.parse(localStorage.getItem("favorites")) || {};
       favorites = allFavorites[loggedInUser] || [];
   }
@@ -785,8 +845,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
   // localStorage.clear();
-
-
 ///////////////// HISTORY SECTION //////////////////
 
 let history = [];
@@ -1042,6 +1100,7 @@ document.querySelectorAll(".artist-card a").forEach(link => {
         openArtistModal(artistName);
     });
 });
+
 
 
 
