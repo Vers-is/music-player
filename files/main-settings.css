@@ -127,7 +127,7 @@ body {
     position: absolute;
     top: 5vh;
     left: 4vw;
-    border-bottom: solid 1px var(--transparent-accent);
+    /* border-bottom: solid 1px var(--transparent-accent); */
 }
 
 .title {
@@ -196,10 +196,6 @@ header {
     border-radius: 10px;
     backdrop-filter: blur(10px);
     justify-content: space-between;
-<<<<<<< HEAD
-=======
-    /* border: 1px solid var(--transparent-accent); */
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 }
 
 .play-icon:hover {

@@ -44,20 +44,32 @@
     
         <header class="top-content">
             <div class="title">Твои Плейлисты</div>
-            <div class="profile-icon" onclick="openModal()"></div>
+            <div id="profileContainer">
+                <div class="icon-container">
+                    <div id="profileIcon"></div>
+                    <div id="profileName">Гость</div>
+                </div>
+                <div id="profileMenu" style="display: none;">
+                    <label for="changeAvatar" class="avatar-img-label profile-option"></label>
+                    <input type="file" id="changeAvatar" accept="image/*" hidden>
+                    <div class="exit-button profile-option" onclick="logout()"></div>
+                </div>
+            </div>  
         </header>      
 
         <!---------   LOGIN USERS  WINDOW     ---------->
-        <div id="loginModal" class="modal-user">
+        
+        <div id="loginModal" class="modal-user" style="display:none;">
             <div class="modal-user-content">
                 <div class="modal-header">
                     <h2>Вход</h2>
                     <span class="close-user" onclick="closeModal()">&times;</span>
                 </div>
-                    <input type="text" id="username" placeholder="Логин" class="regis-input">
-                    <input type="password" id="password" placeholder="Пароль" class="regis-input">
-                    <button onclick="checkLogin()">Войти</button>
-                    <p id="errorMessage" style="color: red; display: none;">Неверный логин или пароль!</p>
+                <input type="text" id="username" placeholder="Логин" class="regis-input">
+                <input type="password" id="password" placeholder="Пароль" class="regis-input">
+                <button onclick="checkLogin()">Войти</button>
+                <p id="errorMessage" style="color: red; display: none;">Неверный логин или пароль!</p>
+                <p style="margin-top: 2vh;">Нет аккаунта? <a class="create-account" href="/files/registration/registration.html" style="color: var(--accent); cursor: pointer;">Создать</a></p>
             </div>
         </div>
 

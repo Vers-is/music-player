@@ -1,0 +1,99 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap');
+
+:root {
+    --accent: #BA82E2;
+    --background-main: #18192D;
+    --background-secondary: #282948;
+    --transparent-accent: #976EB5;
+    --transparent-background: #3E3F5F;
+}
+
+* {
+    font-family: "Unbounded", serif;
+    color: white;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box !important;
+    text-decoration: none;
+    list-style: none;
+    outline: none;
+    font-size: 10px;
+    transition: all .3s ease;
+}
+
+
+body {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* background: radial-gradient(circle, rgba(90, 51, 116, 0.594), rgb(29, 58, 121), rgb(136, 77, 163)); */
+    background: linear-gradient(45deg, rgba(90, 51, 116, 0.594), rgba(29, 58, 121, 0.664), rgb(87, 77, 163));
+    color: white;
+}
+
+.login-container {
+    height: fit-content;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2vh;
+    background-color: #28294876;
+    padding: 6vh 5vw;
+    width: 35vw;
+    border-radius: 40px;
+    border: solid 1.5px rgba(255, 255, 255, 0.429);
+}
+
+.logotype {
+    position: absolute;
+    background-size: contain;
+    background-repeat: no-repeat;
+    aspect-ratio: 1/1;
+    width: auto;
+    height: 30vh;
+    top: 0px;
+    background-image: url("/images/logo.PNG");
+    background-position: center;
+}
+
+input {
+    padding: 10px 30px;
+    width: 100%;
+    border: none;
+    background-color: transparent;
+    border-radius: 40px;
+    border: solid 2px var(--transparent-accent);
+}
+
+input:hover {
+    border: solid 2px white;
+}
+
+#regis-button {
+    margin-top: 5vh;
+    color: white;
+    padding: 10px 30px;
+    width: 80%;
+    border: var(--accent) 1.5px solid;
+    background-color: var(--accent);
+    border-radius: 40px;
+    cursor: pointer;
+}
+
+#regis-button:hover {
+    background-color: transparent;
+}
+
+::placeholder {
+    color: var(--transparent-accent);
+}
+
+.title {
+    margin-bottom: 5vh;
+    font-size: 24px;
+    font-weight: 900;
+}

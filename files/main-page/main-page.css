@@ -2,7 +2,6 @@
     height: auto;
     aspect-ratio: 1/1;
  }
- /* fhhf */
 
 .artists, .content-cover {
     padding: 7px; 
@@ -62,9 +61,5 @@
 
 .artists::-webkit-scrollbar, .content-cover::-webkit-scrollbar {
     display: none;
-<<<<<<< HEAD
 }
 
-=======
-}
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c

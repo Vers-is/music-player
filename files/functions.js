@@ -6,9 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeModal = document.getElementById("closeModal");
   const coverInput = document.getElementById('cover-input');
   const coverPreview = document.getElementById('cover-preview');
-  const saveButton = document.querySelector('.save-button');    const coverInput = document.getElementById('cover-input');
-    const coverPreview = document.getElementById('cover-preview');
-    const saveButton = document.querySelector('.save-button');
+  const saveButton = document.querySelector('.save-button');
 
   openModal.addEventListener("click", () => {
       modal.style.display = "flex"; 
@@ -17,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   closeModal.addEventListener("click", () => {
       modal.style.display = "none"; 
       resetPreview();  
-        resetPreview();  
   });
 
   window.addEventListener("click", (e) => {

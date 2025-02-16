@@ -10,10 +10,7 @@
     align-items: center;
     z-index: 1000;
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 .modal-user-content {
     max-width: 420px;
     width: 100%;
@@ -26,10 +23,6 @@
     text-align: center;
     position: relative;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 .modal-header {
     display: flex;
     justify-content: center;
@@ -38,33 +31,23 @@
     position: relative;
     margin-bottom: 15px;
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 h2 {
     font-size: 18px;
     color: var(--text-color);
     margin: 0;
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 .close-user {
     font-size: 24px;
     font-weight: bold;
     cursor: pointer;
     color: var(--text-color);
     position: absolute;
-    right: 10px;
+    right: -20px;
     top: 50%;
     transform: translateY(-50%);
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 .regis-input {
     width: 90%;
     padding: 10px;
@@ -75,31 +58,79 @@ h2 {
     color: var(--text-color);
     background: rgba(255, 255, 255, 0.1);
 }
-<<<<<<< HEAD
-.regis-input:hover {
-    border: 1px solid white;
-}
-=======
 
 .regis-input:hover {
     border: 1px solid white;
 }
 
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 button {
     padding: 10px 15px;
-    background: linear-gradient(135deg, rgba(242, 239, 239, 0.1), rgba(226, 226, 245, 0.2));
+    background-color: var(--accent);
     border-radius: 5px;
     cursor: pointer;
-    margin-top: 10px;
-    transition: 0.3s;
-    font-size: 12px;
+    margin: 10px 0;
+    /* font-size: 12px; */
+    border: 1px solid var(--accent);
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 3246ec1a6f4a29c459a26c01d296d85e2615ab7c
 button:hover {
-    background: linear-gradient(135deg, rgba(118, 117, 117, 0.1), rgba(128, 128, 133, 0.2));
-    transform: scale(1.03);
+    background-color: transparent;
+    /* background: linear-gradient(135deg, rgba(118, 117, 117, 0.1), rgba(128, 128, 133, 0.2)); */
+    /* transform: scale(1.03); */
+}
+
+#profileContainer {
+    position: relative;
+}
+
+#profileMenu {
+    display: none; 
+    position: absolute;
+    top: 12vh;
+    right: -1.7vw;
+    background: var(--background-secondary);
+    border: 1px solid var(--transparent-accent);
+    padding: 2vh 1.5vw 1.5vh 1.5vw;
+    border-radius: 10px;
+}
+    
+/* ---------------------- */
+
+.profile-option {
+    display: block;
+    width: 3vw; 
+    margin-bottom: 5px;
+    height: auto;
+    aspect-ratio: 1/1;
+    background-color: var(--transparent-background);
+    border-radius: 50%;
+    border: 2px dashed var(--transparent-accent);
+    cursor: pointer;
+    background-position: center;
+    background-size: 50% 50%;
+    background-repeat: no-repeat;
+}
+
+.profile-option:hover  {
+    border: 2px dashed white;
+}   
+
+.avatar-img-label {
+    background-image: url("/images/icons/pencil-purple.png");
+}
+
+.avatar-img-label:hover {
+    background-image: url("/images/icons/pencil-white.png");
+}
+
+.exit-button {
+    background-image: url("/images/icons/exit-purple.png");
+}
+
+.exit-button:hover {
+    background-image: url("/images/icons/exit-white.png");
+}
+
+.create-account:hover {
+    text-decoration: underline;
 }
