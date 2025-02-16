@@ -845,7 +845,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
   // localStorage.clear();
-///////////////// HISTORY SECTION //////////////////
+//////////////// HISTORY SECTION //////////////////
 
 let history = [];
 
@@ -1014,82 +1014,124 @@ const artists = {
     "Eminem": {
         image: "/images/artists/eminem.jpeg",
         songs: [
-            { title: "Lose Yourself", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Without Me", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Mockingbird", image: "/images/icons/atrist-prple-DEF.png" }
-        ]
-    },
+            { name: "Rap God", image: "/images/covers/rapgod.jpeg", src: "/songs/Eminem - Rap God.mp3" },
+            { name: "Love The Way You Lie", image: "/images/covers/lovetheway.jpeg", src: "/songs/Rihanna Feat. Eminem - Love The Way You Lie.mp3"},
+            { name: "Not Afraid", image: "/images/covers/eminem-notafraid.jpeg", src: "/songs/Eminem - No Afraid.mp3" }
+        ],
+      },
     "The Weeknd": {
         image: "/images/artists/theweeknd.webp",
         songs: [
-            { title: "Blinding Lights", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Save Your Tears", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Starboy", image: "/images/icons/atrist-prple-DEF.png" }
+            { name: "Starboy", image: "/images/covers/weeknd-starboy.jpeg", src: "/songs/The Weeknd feat. Daft Punk - Starboy.mp3" },
+            { name: "Blinding Lights", image: "/images/covers/weeknd-blinding.png", src: "/songs/The Weeknd - Blinding Lights.mp3" },
+            { name: "Pray For Me", image: "/images/covers/Pray-for-Me.jpg.webp", src: "/songs/The Weeknd & Kendrick Lamar - Pray For Me.mp3" }
         ]
     },
         "Дора": {
         image: "/images/artists/dora.jpeg",
         songs: [
-            { title: "Blinding Lights", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Save Your Tears", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Starboy", image: "/images/icons/atrist-prple-DEF.png" }
+           { name: "Втюрилась", image: "/images/covers/дора-втюрилась.jpeg", src: "/songs/Дора - Втюрилась.mp3" },
+            { name: "Дорадура", image: "/images/covers/дорадура.jpeg", src: "/songs/Дора - Дорадура.mp3" },
+            { name: "Интернет-свидание", image: "/images/covers/дора-младшаясестра.png", src: "/songs/Дора - Интернет-свидание.mp3" }
         ]
     },
-        "50 Cent": {
+         "50 Cent": {
         image: "/images/artists/50Cent.jpeg",
         songs: [
-            { title: "Blinding Lights", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Save Your Tears", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Starboy", image: "/images/icons/atrist-prple-DEF.png" }
+           { name: "In Da Club", image: "/images/covers/50-indaclub.jpeg", src: "/songs/50 Cent - In Da Club.mp3" },
+            { name: "Candy Shop", image: "/images/covers/candyshop.jpeg", src: "/songs/50 Cent - Candy Shop (Feat. Olivia).mp3" },
+            { name: "Just A Lil Bit", image: "/images/covers/justalil.jpeg", src: "/songs/50 Cent - Just A Lil Bit.mp3" }
         ]
     },
-        "Jax 02.14": {
+         "Jax 02.14": {
         image: "/images/artists/jax.jpeg",
         songs: [
-            { title: "Blinding Lights", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Save Your Tears", image: "/images/icons/atrist-prple-DEF.png" },
-            { title: "Starboy", image: "/images/icons/atrist-prple-DEF.png" }
+           { name: "Ким Билет", image: "/images/covers/kimbilet.jpeg", src: "/songs/Jax 02.14 - Kim Bilet.mp3" },
+            { name: "Sebelep", image: "/images/covers/sebelep.webp", src: "/songs/Jax (02.14) - Sebelep.mp3" },
+            { name: "Коюп Кой", image: "/images/artists/jax album.jpeg", src: "/songs/Jax (02.14) - Коюп Кой.mp3" }
         ]
-    },
-    
-    
-
-
-};
+    }
+  }
+let currentAudio = null; // Текущий аудиоэлемент
+let currentPlayIcon = null; // Текущая иконка плей/пауза
 
 function openArtistModal(artistName) {
     const modal = document.getElementById("artistModal");
     const artistImage = document.getElementById("artistImage");
     const artistTitle = document.getElementById("artistName");
-    const songList = document.getElementById("songList");
+    const popularSongs = document.getElementById("popularSongs");
 
     if (artists[artistName]) {
         artistTitle.textContent = artistName;
         artistImage.src = artists[artistName].image;
-        songList.innerHTML = "";
+        popularSongs.innerHTML = "";
 
-        artists[artistName].songs.forEach(song => {
-            const songItem = document.createElement("div");
-            songItem.classList.add("grid-item");
-
-            songItem.innerHTML = `
-                <img src="${song.image}" alt="Song Image" class="track-artist-image">
-                <div class="item-info-cover">
-                    <div class="track-info track-name-history">${song.title}</div>
-                    <div class="track-info track-artist track-artist-history">${artistName}</div>
-                </div>
-                <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
-            `;
-
-            songList.appendChild(songItem);
+        // Отображаем популярные песни (первые 3 песни)
+        artists[artistName].songs.slice(0, 3).forEach(song => {
+            const songItem = createSongItem(song, artistName);
+            popularSongs.appendChild(songItem);
         });
 
         modal.style.display = "flex";
     }
 }
 
+function createSongItem(song, artistName) {
+    const songItem = document.createElement("div");
+    songItem.classList.add("grid-item");
+
+    songItem.innerHTML = `
+        <img src="${song.image}" alt="Song Image" class="track-artist-image">
+        <div class="item-info-cover">
+            <div class="track-info track-name-history">${song.name}</div>
+            <div class="track-info track-artist track-artist-history">${artistName}</div>
+        </div>
+        <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
+    `;
+
+    const playIcon = songItem.querySelector(".play-icon");
+    playIcon.addEventListener("click", (event) => {
+        event.stopPropagation(); // Останавливаем всплытие события
+        togglePlayPause(song, playIcon);
+    });
+
+    return songItem;
+}
+
+function togglePlayPause(song, playIcon) {
+    if (currentAudio && !currentAudio.paused) {
+        currentAudio.pause();
+        currentPlayIcon.src = "/images/icons/play-white.png";
+        if (currentPlayIcon === playIcon) {
+            return;
+        }
+    }
+
+    if (currentAudio) {
+        currentAudio.pause();
+        currentPlayIcon.src = "/images/icons/play-white.png";
+    }
+
+    currentAudio = new Audio(song.src);
+    currentAudio.play();
+    playIcon.src = "/images/icons/pause-white.png";
+    currentPlayIcon = playIcon;
+
+    currentAudio.addEventListener("pause", () => {
+        playIcon.src = "/images/icons/play-white.png";
+    });
+
+    currentAudio.addEventListener("ended", () => {
+        playIcon.src = "/images/icons/play-white.png";
+    });
+}
+
 function closeArtistModal() {
     document.getElementById("artistModal").style.display = "none";
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
 }
 
 // Добавляем обработчик событий для карточек артистов
@@ -1100,8 +1142,3 @@ document.querySelectorAll(".artist-card a").forEach(link => {
         openArtistModal(artistName);
     });
 });
-
-
-
-
-
