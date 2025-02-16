@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +10,10 @@
     <link rel="stylesheet" href="../new-playlist.css">
     <link rel="stylesheet" href="../login-users.css">
     <link rel="stylesheet" href="../player.css">
+    <link rel="stylesheet" href="../artists.css">
     <script src="../functions.js" defer></script>
 </head>
+
 <body>
 
     <!---------   NAVIGATION     ---------->
@@ -38,7 +41,7 @@
 
     <!---------   MAIN     ---------->
 
-    
+
     <main class="main-container">
 
         <!---------   HEADER: PROFILE     ---------->
@@ -55,11 +58,11 @@
                     <input type="file" id="changeAvatar" accept="image/*" hidden>
                     <div class="exit-button profile-option" onclick="logout()"></div>
                 </div>
-            </div>  
-        </header>  
-        
+            </div>
+        </header>
+
         <!---------   LOGIN USERS  WINDOW     ---------->
-       
+
         <div id="loginModal" class="modal-user" style="display:none;">
             <div class="modal-user-content">
                 <div class="modal-header">
@@ -70,11 +73,15 @@
                 <input type="password" id="password" placeholder="Пароль" class="regis-input">
                 <button onclick="checkLogin()">Войти</button>
                 <p id="errorMessage" style="color: red; display: none;">Неверный логин или пароль!</p>
-                <p style="margin-top: 2vh;">Нет аккаунта? <a class="create-account" href="/files/registration/registration.html" style="color: var(--accent); cursor: pointer;">Создать</a></p>
+                <p style="margin-top: 2vh;">Нет аккаунта? <a class="create-account"
+                        href="/files/registration/registration.html"
+                        style="color: var(--accent); cursor: pointer;">Создать</a></p>
             </div>
         </div>
 
         <!---------   ARTISTS     ---------->
+
+
 
         <div class="artists">
             <div class="artist-card">
@@ -104,8 +111,6 @@
                     <p>50 Cent</p>
                 </a>
             </div>
-
-            
             <div class="artist-card">
                 <a href="../artists/artist5.html">
                     <img src="/images/artists/jax.jpeg" alt="Jax 02.14">
@@ -129,21 +134,21 @@
                         <p>The Eminem Show</p>
                     </a>
                 </div>
-    
+
                 <div class="album-card">
                     <a href="/">
                         <img src="/images/artists/jax album.jpeg" alt="">
                         <p>Reload</p>
                     </a>
                 </div>
-    
+
                 <div class="album-card">
                     <a href="/">
                         <img src="/images/artists/weeknd-album.jpeg" alt="">
                         <p>Starboy</p>
                     </a>
                 </div>
-    
+
                 <div class="album-card">
                     <a href="/">
                         <img src="/images/artists/kanye-album.jpeg" alt="">
@@ -151,15 +156,15 @@
                     </a>
                 </div>
             </div>
-            
+
         </div>
 
         <!---------   HISTORY SECTION     ---------->
 
-        <section class="grid">
+        <section class="grid history">
             <div class="title">История</div>
 
-            <div class="grid-container">
+            <div class="grid-container history-container">
 
                 <div class="grid-item">
                     <img src="/images/icons/atrist-prple-DEF.png" alt="artist" class="track-artist-image">
@@ -187,7 +192,7 @@
                     </div>
                     <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
                 </div>
-                    
+
                 <div class="grid-item">
                     <img src="/images/icons/atrist-prple-DEF.png" alt="artist" class="track-artist-image">
                     <div class="item-info-cover">
@@ -196,7 +201,6 @@
                     </div>
                     <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
                 </div>
-
                 <div class="grid-item">
                     <img src="/images/icons/atrist-prple-DEF.png" alt="artist" class="track-artist-image">
                     <div class="item-info-cover">
@@ -242,7 +246,7 @@
                     <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
                 </div>
             </div>
-        </section>     
+        </section>
     </main>
 
     <!---------   CREATE PLAYLIST WINDOW     ---------->
@@ -253,7 +257,7 @@
                 <div class="title">Создать плейлист</div>
                 <span class="close" id="closeModal">&times;</span>
             </div>
-    
+
             <div class="create-cover">
                 <div class="left">
                     <label for="cover-input" class="cover-img">
@@ -262,7 +266,7 @@
                     <input type="file" id="cover-input" accept="image/*" hidden>
                     <p class="subtitle">Обложка</p>
                 </div>
-    
+
                 <div class="right">
                     <input type="text" placeholder="Название плейлиста" class="playlist-name">
                     <textarea placeholder="Описание (необязательно)" class="description"></textarea>
@@ -272,8 +276,8 @@
         </div>
     </div>
 
+
     <!---------   PLAYER     ---------->
-    
     <div class="player">
         <div class="left-section">
             <img id="song-image" class="song-image" src="song1.jpg" alt="Обложка">
@@ -317,4 +321,5 @@
     <audio id="audio-player" src="song1.mp3"></audio>
 
 </body>
+
 </html>
