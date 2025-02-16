@@ -5,20 +5,16 @@
  /* fhhf */
 
 .artists, .content-cover {
-    overflow-x: auto;
+    padding: 7px; 
+    overflow-x: scroll;
     overflow-y: hidden;
     white-space: nowrap;
     scroll-snap-type: x mandatory;
     mask-image: linear-gradient(to left, transparent, #282948 5% ); 
-    padding: 10px;
 }
 
 .artists {
     display: flex;
-}
-
-.album-card img{
-    border-radius: 30px;
 }
 
 .artist-card, .album-card {
@@ -38,14 +34,17 @@
 }
 
 .album-card img, .artist-card img {
+    border-radius: 50%;
     object-fit: cover;
     border: 1px solid var(--transparent-accent);
 }
 
+.album-card img { 
+    border-radius: 30px;
+}    
+
 .artist-card img {
     width: 80%;
-    border-radius: 50%;
-
 }
 
 .album-card img {

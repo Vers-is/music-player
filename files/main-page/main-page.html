@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="../main-page/main-page.css">
     <link rel="stylesheet" href="../new-playlist.css">
     <link rel="stylesheet" href="../login-users.css">
-
+    <link rel="stylesheet" href="../player.css">
     <script src="../functions.js" defer></script>
 </head>
 <body>
@@ -81,9 +81,9 @@
             </div>
 
             <div class="artist-card">
-                <a href="../artists/artist4.html">
-                    <img src="/images/artists/mirbek.jpeg" alt="Мирбек Атабеков">
-                    <p>Мирбек Атабеков</p>
+                <a href="../artists/artist2.html">
+                    <img src="/images/artists/dora.jpeg" alt="Dora">
+                    <p>Дора</p>
                 </a>
             </div>
 
@@ -140,6 +140,7 @@
                     </a>
                 </div>
             </div>
+            
         </div>
 
         <!---------   HISTORY SECTION     ---------->
@@ -259,6 +260,50 @@
             </div>
         </div>
     </div>
+
+    <!---------   PLAYER     ---------->
+    
+    <div class="player">
+        <div class="left-section">
+            <img id="song-image" class="song-image" src="song1.jpg" alt="Обложка">
+            <div class="song-info">
+                <div id="song-name">Песня 1</div>
+                <div id="song-artist">Исполнитель 1</div>
+            </div>
+            <img src="/images/icons/heart-white.png" alt="" class="love-song-icon">
+        </div>
+
+        <div class="player-controls">
+            <button id="shuffle-btn" class="button2">
+                <img src="/images/icons/shuffle.png" alt="Shuffle">
+            </button>
+            <button id="prev-btn" class="button2">
+                <img src="/images/icons/previous-white.png" alt="Previous">
+            </button>
+            <button id="play-btn" class="button2">
+                <img src="/images/icons/play-white.png" alt="Play">
+            </button>
+            <button id="next-btn" class="button2">
+                <img src="/images/icons/next-white.png" alt="Next">
+            </button>
+            <button id="repeat-btn" class="button2">
+                <img src="/images/icons/repeat-white.png" alt="Repeat">
+            </button>
+        </div>
+
+        <div class="progress-container">
+            <span id="current-time">0:00</span>
+            <input id="progress-bar" type="range" min="0" max="100" value="0">
+            <span id="total-duration">0:00</span>
+        </div>
+
+        <div class="volume-control">
+            <img src="/images/icons/volume.png" alt="">
+            <input id="volume-control" type="range" min="0" max="1" step="0.01" value="0.5">
+        </div>
+    </div>
+
+    <audio id="audio-player" src="song1.mp3"></audio>
 
 </body>
 </html>

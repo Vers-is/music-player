@@ -113,7 +113,87 @@ textarea::-webkit-scrollbar {
     background-color: var(--accent);
     border-radius: 40px;
     border: none;
+}    
+.right {
+    align-items: end;
+}
+
+.create-cover {
+    gap: 5vw;
+    display: grid;
+    grid-template-columns: 15vw 20vw;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cover-img {
+    aspect-ratio: 1/1;
+    background-color: var(--transparent-background);
+    border: 2px dashed var(--transparent-accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer; 
+}
+
+.cover-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-img:hover {
+    border: 2px dashed white;
+    background-image: url("/images/icons/img-white.png");
+}
+
+.cover-img {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 50% 50%;
+    background-image: url("/images/icons/img-purple.png");
+}
+
+.playlist-name, textarea {
+    padding: 2vh 2vw;
+    width: 100%;
+    background-color: var(--transparent-background);
+    border-radius: 10px;
+    border: solid 1.5px var(--transparent-accent);
+}
+
+.playlist-name:hover, textarea:hover {
+    border: solid 1.5px white;
+}
+
+.description {
+    height: 20vh;
+    resize: none;
+}
+
+textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.save-button {
+    padding: 2vh 2vw;
+    background-color: var(--accent);
+    border-radius: 40px;
+    border: none;
     cursor: pointer;
+}
+
+.save-button:hover {
+    background-color: rgb(154, 97, 195);
+}
+
+.subtitle {
+    font-size: 12px;
+}
+
+#cover-preview {
+    border-radius: 10px;
 }
 
 .save-button:hover {

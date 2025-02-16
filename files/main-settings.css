@@ -20,16 +20,15 @@
 /*      MEDIA        */
 
 @media (max-width:780px) {
-    * {
-        font-size: 8px !important;
+    .track-artist {
+        font-size: 8px;
+    }
+
+    .track-info {
+        font-size: 12px;
     }
 }
 
-@media (min-width: 1280px) {
-    .title {
-        font-size: 24px !important;
-    }    
-}
 /*                   */
 
 ::-webkit-scrollbar {
@@ -207,13 +206,24 @@ header {
     transform: scale(1.1);
 }
 
+.item-info-cover {
+    width: 50%;
+    text-align: start;
+}
+
 .track-info {
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .track-info:hover {
     transform: scale(1.05);
+}
+
+.track-artist-image {
+    /* width: 40px; */
+    /* aspect-ratio: 1/1; */
+    border-radius: 5px;
 }
 
 .track-artist-image:hover {
@@ -250,3 +260,32 @@ header,
     display: flex;
 }
 
+#profileIcon {
+    cursor: pointer;
+    width: auto;
+    height: 7vh;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
+    border: solid 2px var(--transparent-accent);
+}
+
+.icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+#profileName {
+    position: absolute;
+    top: 8vh;
+}
+
+#profileIcon:hover {
+    filter: brightness(80%);
+    opacity: 0.9;
+}
