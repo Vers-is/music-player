@@ -1194,6 +1194,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const moodTitle = document.getElementById("mood-it");
   const songContainer = document.getElementById("selectedSongs");
 
+  if (moodModal) {
+    moodModal.style.display = "none";
+  } else {
+    console.error("Элемент с id 'moodModal' не найден");
+  }
+
   const moods = {
       "sad-mood": {
           name: "Грустное",
@@ -1204,7 +1210,7 @@ document.addEventListener("DOMContentLoaded", function () {
               { title: "Будь моим смыслом", artist: "Fleur", image: "/images/covers/mood/Fleur.png", src: "/songs/sad/Flëur - Будь моим смыслом.mp3" },
               { title: "Тени", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/sad/Валентин Стрыкало - Тени.mp3" },
               { title: "В темноте", artist: "Noize MC", image: "/images/covers/charts/noize mc - nocomments.png", src: "/songs/sad/Noize MC - В темноте.mp3" },
-              { title: "Дешевые драмы", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/sad/Homesick.mp3" }
+              { title: "Дешевые драмы", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/sad/Валентин Стрыкало-Дешёвые драмы.mp3" }
           ]
       },
       "happy-mood": {
@@ -1224,70 +1230,170 @@ document.addEventListener("DOMContentLoaded", function () {
           image: "/images/covers/calm-cover.png",
           songs: [
               { title: "Шанс", artist: "Дайте танк (!)", image: "/images/covers/mood/танк.png", src: "/songs/calm/Шанс - Дайте танк (!).mp3" },
-              { title: "Декабрь", artist: "войка, Миролюбивое Море", image: "/images/covers/mood/декабрь.png", src: "/songs/happy/Декабрь - войка, Миролюбивое Море.mp3" },
-              { title: "До восхода", artist: "Ручной рептилоид", image: "/images/covers/mood/рептилоид.png", src: "/songs/happy/До восхода - Ручной Рептилоид.mp3" },
-              { title: "Весна", artist: "Гр. Полухутенко", image: "/images/covers/mood/полухутенко.png", src: "/songs/happy/Весна - Гр. Полухутенко.mp3" },
-              { title: "Pain", artist: "PinkPantheress", image: "/images/covers/mood/pain.png", src: "/songs/happy/Pain - PinkPantheress.mp3" },
-              { title: "Бесполезно", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/happy/Валентин Стрыкало - Бесполезно.mp3" }
+              { title: "Декабрь", artist: "войка, Миролюбивое Море", image: "/images/covers/mood/декабрь.png", src: "/songs/calm/Декабрь - войка, Миролюбивое Море.mp3" },
+              { title: "До восхода", artist: "Ручной рептилоид", image: "/images/covers/mood/рептилоид.png", src: "/songs/calm/До восхода - Ручной Рептилоид.mp3" },
+              { title: "Весна", artist: "Гр. Полухутенко", image: "/images/covers/mood/полухутенко.png", src: "/songs/calm/Весна - Гр. Полухутенко.mp3" },
+              { title: "Pain", artist: "PinkPantheress", image: "/images/covers/mood/pain.png", src: "/songs/calm/Pain - PinkPantheress.mp3" },
+              { title: "Бесполезно", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/calm/Валентин Стрыкало - Бесполезно.mp3" }
           ]
       }
   };
 
-  function openMoodModal(moodKey) {
-      const mood = moods[moodKey];
-      if (!mood) return;
+  
+let currentPlaylist = null;
 
-      moodTitle.textContent = mood.name;
-      moodTitle.style.backgroundImage = `url(${mood.image})`;
-      moodTitle.style.backgroundSize = "cover";
-      moodTitle.style.backgroundPosition = "center";
-      loadPopularSongs(mood.songs);
-      moodModal.style.display = "flex";
-  }
-
-  function closeMoodModal() {
-      moodModal.style.display = "none";
-  }
-
-  function loadPopularSongs(songs) {
-      songContainer.innerHTML = "";
-      songs.forEach(song => {
-          const songElement = document.createElement("div");
-          songElement.classList.add("custom-grid-artist-item");
-          songElement.innerHTML = `
-              <img class="custom-track-artist-image" src="${song.image}" alt="${song.title}">
-              <div class="custom-item-info-cover">
-                  <div class="custom-track-info">${song.title}</div>
-                  <div class="custom-track-artist">${song.artist}</div>
-              </div>
-              <img class="custom-play-icon" src="/images/icons/play-white.png" alt="Play">
-          `;
-          songContainer.appendChild(songElement);
-      });
-  }
-
-  const moodModalDisplayed = localStorage.getItem("moodModalDisplayed");
-  if (moodModalDisplayed) {
-      moodModal.style.display = "none"; 
-  }
-
-  document.querySelectorAll(".mood-item").forEach(item => {
-      item.addEventListener("click", function () {
-          openMoodModal(this.id);
-          localStorage.setItem("moodModalDisplayed", "true"); 
-      });
+function resetMoodAndPlayerIcons() {
+  const moodIcons = document.querySelectorAll(".custom-play-icon");
+  moodIcons.forEach(icon => {
+    icon.src = "/images/icons/play-white.png";
   });
+  const playerIcon = document.querySelector("#play-btn img");
+  if (playerIcon) {
+    playerIcon.src = "/images/icons/play-white.png";
+  }
+}
 
-  if (closeModalBtn) {
-      closeModalBtn.addEventListener("click", closeMoodModal);
+function openMoodModal(moodKey) {
+  const mood = moods[moodKey];
+  if (!mood) return;
+
+  if (currentPlaylist !== moodKey) {
+    const audioPlayer = document.getElementById("audio-player");
+    if (audioPlayer && !audioPlayer.paused) {
+      audioPlayer.pause();
+    }
+    resetMoodAndPlayerIcons();
+    localStorage.setItem("isPlaying", "false");
+    localStorage.removeItem("currentSongIndex");
+    localStorage.removeItem("songSrc");
+    currentPlaylist = moodKey;
   }
 
-  window.addEventListener("click", function (event) {
-      if (event.target === moodModal) {
-          closeMoodModal();
-      }
+  moodTitle.textContent = mood.name;
+  moodTitle.style.backgroundImage = `url(${mood.image})`;
+  moodTitle.style.backgroundSize = "cover";
+  moodTitle.style.backgroundPosition = "center";
+  loadPopularSongs(mood.songs);
+  moodModal.style.display = "flex";
+}
+
+
+function closeMoodModal() {
+  moodModal.style.display = "none";
+}
+
+document.querySelectorAll(".mood-item").forEach(item => {
+  item.addEventListener("click", function () {
+    openMoodModal(this.id);
+    localStorage.setItem("moodModalDisplayed", "true");
   });
 });
+
+if (closeModalBtn) {
+  closeModalBtn.addEventListener("click", closeMoodModal);
+}
+
+window.addEventListener("click", function (event) {
+  if (event.target === moodModal) {
+    closeMoodModal();
+  }
+});
+
+const audioPlayer = document.getElementById('audio-player');
+if (audioPlayer) {
+  audioPlayer.addEventListener("pause", () => {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    updateMoodIcons(Number(currentSongIndex), false);
+    updatePlayIcon(false);
+    localStorage.setItem("isPlaying", "false");
+  });
+
+  audioPlayer.addEventListener("ended", () => {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    updateMoodIcons(Number(currentSongIndex), false);
+    updatePlayIcon(false);
+    localStorage.setItem("isPlaying", "false");
+  });
+}
+
+function loadPopularSongs(songs) {
+  songContainer.innerHTML = "";
+  const currentSongIndex = localStorage.getItem("currentSongIndex");
+  const isPlaying = localStorage.getItem("isPlaying") === "true";
+
+  songs.forEach((song, index) => {
+    const songElement = document.createElement("div");
+    songElement.classList.add("custom-grid-artist-item");
+    songElement.innerHTML = `
+      <img class="custom-track-artist-image" src="${song.image}" alt="${song.title}">
+      <div class="custom-item-info-cover">
+        <div class="custom-track-info">${song.title}</div>
+        <div class="custom-track-artist">${song.artist}</div>
+      </div>
+      <img class="custom-play-icon" src="/images/icons/play-white.png" alt="Play">
+    `;
+    songContainer.appendChild(songElement);
+
+    const playIcon = songElement.querySelector(".custom-play-icon");
+
+    if (index == currentSongIndex && isPlaying) {
+      playIcon.src = "/images/icons/pause-white.png";
+    }
+
+    playIcon.addEventListener("click", () => {
+      playSongFromMood(song, index);
+    });
+  });
+}
+
+function playSongFromMood(song, songIndex) {
+  const songImage = document.querySelector("#song-image");
+  const songTitle = document.querySelector("#song-name");
+  const songArtist = document.querySelector("#song-artist");
+  const audioPlayer = document.getElementById('audio-player');
+
+  const currentSongSrc = localStorage.getItem("songSrc");
+
+  if (currentSongSrc === song.src && !audioPlayer.paused) {
+    audioPlayer.pause();
+    updateMoodIcons(songIndex, false);
+    localStorage.setItem("isPlaying", "false");
+    return;
+  }
+
+  songImage.src = song.image;
+  songImage.alt = song.title;
+  songTitle.textContent = song.title;
+  songArtist.textContent = song.artist;
+  audioPlayer.src = song.src;
+
+  audioPlayer.play().then(() => {
+    updateMoodIcons(songIndex, true);
+    localStorage.setItem("isPlaying", "true");
+  });
+
+  localStorage.setItem("currentSongIndex", songIndex);
+  localStorage.setItem("songSrc", song.src);
+  updatePlayIcon(true);
+}
+
+function updateMoodIcons(currentSongIndex, isPlaying) {
+  const songElements = document.querySelectorAll(".custom-grid-artist-item");
+  songElements.forEach((songElement, index) => {
+    const playIcon = songElement.querySelector(".custom-play-icon");
+    playIcon.src = (index === currentSongIndex && isPlaying)
+      ? "/images/icons/pause-white.png"
+      : "/images/icons/play-white.png";
+  });
+  updatePlayIcon(isPlaying);
+}
+
+function updatePlayIcon(isPlaying) {
+  const playIcon = document.querySelector("#play-btn img");
+  if (playIcon) {
+    playIcon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
+  }
+}
 
 function setMood(moodKey) {
   const selectedMood = moods[moodKey];
@@ -1296,4 +1402,6 @@ function setMood(moodKey) {
   updateSongInfo();
 }
 
-  // localStorage.clear();
+});
+
+// localStorage.clear();
