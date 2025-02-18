@@ -13,18 +13,17 @@
 
 .modal-artists-content {
     background: var(--transparent-background);
-    padding: 40px;
+    padding: 5vh 2vw;
     border-radius: 20px;
     border: solid 1px var(--transparent-accent);
     width: 60%;
-    height: 80%;
+    height: 70%;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
 }
 
-/* Анимация появления */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -70,14 +69,13 @@
 
 #artistImage {
     margin-top: 20px;
-    width: 150px;
-    height: 150px;
+    width: 12vw;
+    aspect-ratio: 1/1;
     object-fit: cover;
     border-radius: 50%;
     border: 4px solid var(--transparent-accent);
 }
 
-/* Блок с песнями */
 .songs-container {
     width: 100%;
     display: flex;
@@ -87,8 +85,8 @@
 
 .grid-artists-container {
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 15px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1vw;
     width: 100%;
 }
 
@@ -112,8 +110,8 @@
 
 
 .track-artist-image {
-    width: 40px;
-    height: 40px;
+    width: 3vw;
+    aspect-ratio: 1/1;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -141,8 +139,8 @@
 }
 
 .play-icon {
-    width: 30px;
-    height: 30px;
+    width: 2vw;
+    aspect-ratio: 1/1;
 }
 
 .play-icon:hover {

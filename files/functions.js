@@ -425,7 +425,7 @@ document.addEventListener("DOMContentLoaded", function () {
     { name: "Купидоны", artist: "Слава КПСС", image: "/images/covers/charts/слава кппс - лпнл.png", src: "/songs/charts/Слава КПСС - Купидоны.mp3" },
   ];
  
-  const playIcons = document.querySelectorAll('.grid-item .play-icon');
+const playIcons = document.querySelectorAll('.grid-item .play-icon');
 
 playIcons.forEach((icon, index) => {
     icon.addEventListener('click', () => {
@@ -452,9 +452,7 @@ function playSongFromCharts(song, chartIndex) {
     audioPlayer.play().then(() => {
         updateIcons(chartIndex, true);
         localStorage.setItem("isPlaying", "true");
-    }).catch((error) => {
-        console.error("Ошибка при воспроизведении песни:", error);
-    });
+    })
 
     localStorage.setItem("currentSongIndex", chartIndex);
     localStorage.setItem("songSrc", song.src);
@@ -834,7 +832,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
   });
 
-  // Назначаем обработчики на кнопки
   [loveSongIcon, favoriteBtn].forEach((btn) => {
       if (btn) {
           btn.addEventListener("click", toggleFavorite);
@@ -844,7 +841,6 @@ document.addEventListener("DOMContentLoaded", () => {
   init();
 });
 
-  // localStorage.clear();
 //////////////// HISTORY SECTION //////////////////
 
 let history = [];
@@ -866,7 +862,7 @@ function getCurrentSong() {
 }
 
 function loadHistory() {
-    loggedInUser = getCurrentUser(); // Гарантируем загрузку текущего пользователя
+    loggedInUser = getCurrentUser(); 
     if (!loggedInUser) {
         history = [];
         return;
@@ -887,7 +883,7 @@ function isCurrentSongHistory() {
 }
 
 function toggleHistory() {
-    loggedInUser = getCurrentUser(); // Получаем актуального пользователя
+    loggedInUser = getCurrentUser(); 
     if (!loggedInUser) return;
 
     const currentSong = getCurrentSong();
@@ -903,16 +899,14 @@ function toggleHistory() {
     saveHistory();
     renderHistory();
 }
-// Функция для отображения истории
 function renderHistory() {
     const historyContainer = document.querySelector(".history-container");
     if (!historyContainer) return;
 
-    historyContainer.innerHTML = ""; // Очищаем контейнер
-    const maxSlots = 9; // Максимальное количество слотов
-    const displayedHistory = history.slice(0, maxSlots); // Берем первые 9 песен из истории
+    historyContainer.innerHTML = ""; 
+    const maxSlots = 9;
+    const displayedHistory = history.slice(0, maxSlots); 
 
-    // Отображаем песни из истории
     displayedHistory.forEach((song, index) => {
         const gridItem = document.createElement("div");
         gridItem.classList.add("grid-item");
@@ -933,7 +927,6 @@ function renderHistory() {
         historyContainer.appendChild(gridItem);
     });
 
-    // Добавляем пустые серые блоки, если история не заполнена
     for (let i = displayedHistory.length; i < maxSlots; i++) {
         const gridItem = document.createElement("div");
         gridItem.classList.add("grid-item");
@@ -952,7 +945,6 @@ function renderHistory() {
     }
 }
 
-// Добавляем песню в историю при воспроизведении
 audioPlayer.addEventListener("play", () => {
     loggedInUser = getCurrentUser();
     if (!loggedInUser) return;
@@ -978,9 +970,7 @@ audioPlayer.addEventListener("play", () => {
     renderHistory();
 });
 
-// Синхронизация истории между вкладками
 window.addEventListener("load", function() {
-    // Загрузка пользователя
     loggedInUser = localStorage.getItem("loggedInUser");
     console.log("Logged in user on load:", loggedInUser);
 
@@ -992,16 +982,13 @@ window.addEventListener("load", function() {
         updateProfileName("Гость");
     }
 
-    // Загрузка истории
     loadHistory();
     renderHistory();
 
-    // Загрузка избранного
     loadFavorites();
     renderFavorites();
 });
 
-// Загружаем историю при старте
 window.onload = function() {
     loggedInUser = getCurrentUser();
     loadHistory();
@@ -1052,93 +1039,261 @@ const artists = {
         ]
     }
   }
-let currentAudio = null; // Текущий аудиоэлемент
-let currentPlayIcon = null; // Текущая иконка плей/пауза
 
-function openArtistModal(artistName) {
-    const modal = document.getElementById("artistModal");
-    const artistImage = document.getElementById("artistImage");
-    const artistTitle = document.getElementById("artistName");
-    const popularSongs = document.getElementById("popularSongs");
+  let currentAudio = null;
+  let currentPlayIcon = null;
+  const artistPlayIcons = new Map();
+  
+  function openArtistModal(artistName) {
+      const modal = document.getElementById("artistModal");
+      const artistImage = document.getElementById("artistImage");
+      const artistTitle = document.getElementById("artistName");
+      const popularSongs = document.getElementById("popularSongs");
+  
+      if (artists[artistName]) {
+          artistTitle.textContent = artistName;
+          artistImage.src = artists[artistName].image;
+          popularSongs.innerHTML = "";
+          artistPlayIcons.clear();
+  
+          artists[artistName].songs.slice(0, 3).forEach((song, index) => {
+              const songItem = createSongItem(song, artistName, index);
+              popularSongs.appendChild(songItem);
+          });
+  
+          modal.style.display = "flex";
+      }
+  }
+  
+  function closeArtistModal() {
+      document.getElementById("artistModal").style.display = "none";
+      if (currentAudio) {
+          currentAudio.pause();
+          currentAudio = null;
+          localStorage.setItem("isPlaying", "false");
+      }
+  }
+  
+  function createSongItem(song, artistName, index) {
+      const songItem = document.createElement("div");
+      songItem.classList.add("grid-item");
+  
+      songItem.innerHTML = `
+          <img src="${song.image}" alt="Song Image" class="track-artist-image">
+          <div class="item-info-cover">
+              <div class="track-info track-name-history">${song.name}</div>
+              <div class="track-info track-artist track-artist-history">${artistName}</div>
+          </div>
+          <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
+      `;
+  
+      const playIcon = songItem.querySelector(".play-icon");
+      artistPlayIcons.set(index, playIcon);
+  
+      playIcon.addEventListener("click", (event) => {
+          event.stopPropagation(); 
+          playSongFromArtist(song, index);
+      });
+  
+      return songItem;
+  }
+  
+  function playSongFromArtist(song, songIndex) {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    const currentSongSrc = localStorage.getItem("songSrc");
 
-    if (artists[artistName]) {
-        artistTitle.textContent = artistName;
-        artistImage.src = artists[artistName].image;
-        popularSongs.innerHTML = "";
-
-        // Отображаем популярные песни (первые 3 песни)
-        artists[artistName].songs.slice(0, 3).forEach(song => {
-            const songItem = createSongItem(song, artistName);
-            popularSongs.appendChild(songItem);
-        });
-
-        modal.style.display = "flex";
-    }
-}
-
-function createSongItem(song, artistName) {
-    const songItem = document.createElement("div");
-    songItem.classList.add("grid-item");
-
-    songItem.innerHTML = `
-        <img src="${song.image}" alt="Song Image" class="track-artist-image">
-        <div class="item-info-cover">
-            <div class="track-info track-name-history">${song.name}</div>
-            <div class="track-info track-artist track-artist-history">${artistName}</div>
-        </div>
-        <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
-    `;
-
-    const playIcon = songItem.querySelector(".play-icon");
-    playIcon.addEventListener("click", (event) => {
-        event.stopPropagation(); // Останавливаем всплытие события
-        togglePlayPause(song, playIcon);
-    });
-
-    return songItem;
-}
-
-function togglePlayPause(song, playIcon) {
-    if (currentAudio && !currentAudio.paused) {
+    // Если эта песня уже играет, то при клике на неё будет ставиться на паузу
+    if (currentSongSrc === song.src && currentAudio && !currentAudio.paused) {
         currentAudio.pause();
-        currentPlayIcon.src = "/images/icons/play-white.png";
-        if (currentPlayIcon === playIcon) {
-            return;
-        }
+        updateIcons(songIndex, false); // Обновить иконку на play
+        localStorage.setItem("isPlaying", "false");
+        return;
     }
 
+    // Если играет другая песня, остановим её
     if (currentAudio) {
-        currentAudio.pause();
-        currentPlayIcon.src = "/images/icons/play-white.png";
-    }
-
-    currentAudio = new Audio(song.src);
-    currentAudio.play();
-    playIcon.src = "/images/icons/pause-white.png";
-    currentPlayIcon = playIcon;
-
-    currentAudio.addEventListener("pause", () => {
-        playIcon.src = "/images/icons/play-white.png";
-    });
-
-    currentAudio.addEventListener("ended", () => {
-        playIcon.src = "/images/icons/play-white.png";
-    });
-}
-
-function closeArtistModal() {
-    document.getElementById("artistModal").style.display = "none";
-    if (currentAudio) {
-        currentAudio.pause();
+        currentAudio.pause(); // Останавливаем текущую песню
         currentAudio = null;
     }
+
+    // Создание нового объекта аудио и воспроизведение
+    currentAudio = new Audio(song.src);
+    currentAudio.play().then(() => {
+        updateIcons(songIndex, true); // Иконка меняется на pause
+        localStorage.setItem("isPlaying", "true");
+    }).catch(err => {
+        console.error("Error playing audio:", err);
+    });
+
+    // Обновляем плеер с новой песней
+    document.getElementById("song-image").src = song.image;
+    document.getElementById("song-name").textContent = song.name;
+    document.getElementById("song-artist").textContent = song.artist;
+
+    // Сохраняем информацию о текущей песне в localStorage
+    localStorage.setItem("currentSongIndex", songIndex);
+    localStorage.setItem("songSrc", song.src);
+    localStorage.setItem("songName", song.name);
+    localStorage.setItem("songArtist", song.artist);
 }
 
-// Добавляем обработчик событий для карточек артистов
-document.querySelectorAll(".artist-card a").forEach(link => {
-    link.addEventListener("click", (event) => {
-        event.preventDefault();
-        const artistName = event.currentTarget.querySelector("p").textContent;
-        openArtistModal(artistName);
-    });
+function updateIcons(currentSongIndex, isPlaying) {
+  const player = document.querySelector(".player");
+  if (!player) return; 
+
+  artistPlayIcons.forEach((icon, index) => {
+      if (index === currentSongIndex) {
+          icon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
+      } else {
+          icon.src = "/images/icons/play-white.png";
+      }
+  });
+
+  const currentSongName = localStorage.getItem("songName");
+  const currentSongArtist = localStorage.getItem("songArtist");
+
+  if (currentSongName && currentSongArtist) {
+      const songNameElement = player.querySelector(".current-song-name");
+      const songArtistElement = player.querySelector(".current-song-artist");
+
+      if (songNameElement && songArtistElement) {
+          songNameElement.textContent = currentSongName;
+          songArtistElement.textContent = currentSongArtist;
+          player.style.display = "block"; 
+      } 
+  }
+}
+
+  if (currentAudio) {
+      currentAudio.addEventListener("pause", () => {
+          const currentSongIndex = localStorage.getItem("currentSongIndex");
+          updateIcons(currentSongIndex, false);
+          localStorage.setItem("isPlaying", "false");
+      });
+  
+      currentAudio.addEventListener("ended", () => {
+          const currentSongIndex = localStorage.getItem("currentSongIndex");
+          updateIcons(currentSongIndex, false);
+          localStorage.setItem("isPlaying", "false");
+      });
+  }
+  
+  document.querySelectorAll(".artist-card a").forEach(link => {
+      link.addEventListener("click", (event) => {
+          event.preventDefault();
+          const artistName = event.currentTarget.querySelector("p").textContent;
+          openArtistModal(artistName);
+      });
+  });
+  
+/////////////  MOOD
+
+document.addEventListener("DOMContentLoaded", function () {
+  const moodModal = document.getElementById("moodModal");
+  const closeModalBtn = document.querySelector("#moodModal .close");
+  const moodTitle = document.getElementById("mood-it");
+  const songContainer = document.getElementById("selectedSongs");
+
+  const moods = {
+      "sad-mood": {
+          name: "Грустное",
+          image: "/images/covers/sad-cover.png",
+          songs: [
+              { title: "Homesick", artist: "The Cure", image: "/images/covers/mood/cure.png", src: "/songs/sad/The Cure - Homesick.mp3" },
+              { title: "Liquid Smooth", artist: "Mitski", image: "/images/covers/mood/Mitski.png", src: "/songs/sad/Mitski-Liquid Smooth.mp3" },
+              { title: "Будь моим смыслом", artist: "Fleur", image: "/images/covers/mood/Fleur.png", src: "/songs/sad/Flëur - Будь моим смыслом.mp3" },
+              { title: "Тени", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/sad/Валентин Стрыкало - Тени.mp3" },
+              { title: "В темноте", artist: "Noize MC", image: "/images/covers/charts/noize mc - nocomments.png", src: "/songs/sad/Noize MC - В темноте.mp3" },
+              { title: "Дешевые драмы", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/sad/Homesick.mp3" }
+          ]
+      },
+      "happy-mood": {
+          name: "Веселое",
+          image: "/images/covers/happy-cover.png",
+          songs: [
+              { title: "Кайен", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/happy/Валентин Стрыкало - Кайен.mp3" },
+              { title: "Фанк", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/happy/Валентин Стрыкало-Фанк.mp3" },
+              { title: "Офисный стиляга", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/happy/Валентин Стрыкало - Офисный Стиляга.mp3" },
+              { title: "Душнила", artist: "idst", image: "/images/covers/charts/idst - Душнила.png", src: "/songs/happy/idst - Душнила.mp3" },
+              { title: "По небу", artist: "W.K.", image: "/images/covers/mood/по небу.png", src: "/songs/happy/По небу - W.K..mp3" },
+              { title: "Gimme Chocolate!", artist: "Babymetal", image: "/images/covers/mood/Babymetal.png", src: "/songs/happy/Gimme Chocolate!! - Babymetal.mp3" }
+          ]
+      },
+      "calm-mood": {
+          name: "Спокойное",
+          image: "/images/covers/calm-cover.png",
+          songs: [
+              { title: "Шанс", artist: "Дайте танк (!)", image: "/images/covers/mood/танк.png", src: "/songs/calm/Шанс - Дайте танк (!).mp3" },
+              { title: "Декабрь", artist: "войка, Миролюбивое Море", image: "/images/covers/mood/декабрь.png", src: "/songs/happy/Декабрь - войка, Миролюбивое Море.mp3" },
+              { title: "До восхода", artist: "Ручной рептилоид", image: "/images/covers/mood/рептилоид.png", src: "/songs/happy/До восхода - Ручной Рептилоид.mp3" },
+              { title: "Весна", artist: "Гр. Полухутенко", image: "/images/covers/mood/полухутенко.png", src: "/songs/happy/Весна - Гр. Полухутенко.mp3" },
+              { title: "Pain", artist: "PinkPantheress", image: "/images/covers/mood/pain.png", src: "/songs/happy/Pain - PinkPantheress.mp3" },
+              { title: "Бесполезно", artist: "Валентин Стрыкало", image: "/images/covers/mood/валентин.png", src: "/songs/happy/Валентин Стрыкало - Бесполезно.mp3" }
+          ]
+      }
+  };
+
+  function openMoodModal(moodKey) {
+      const mood = moods[moodKey];
+      if (!mood) return;
+
+      moodTitle.textContent = mood.name;
+      moodTitle.style.backgroundImage = `url(${mood.image})`;
+      moodTitle.style.backgroundSize = "cover";
+      moodTitle.style.backgroundPosition = "center";
+      loadPopularSongs(mood.songs);
+      moodModal.style.display = "flex";
+  }
+
+  function closeMoodModal() {
+      moodModal.style.display = "none";
+  }
+
+  function loadPopularSongs(songs) {
+      songContainer.innerHTML = "";
+      songs.forEach(song => {
+          const songElement = document.createElement("div");
+          songElement.classList.add("custom-grid-artist-item");
+          songElement.innerHTML = `
+              <img class="custom-track-artist-image" src="${song.image}" alt="${song.title}">
+              <div class="custom-item-info-cover">
+                  <div class="custom-track-info">${song.title}</div>
+                  <div class="custom-track-artist">${song.artist}</div>
+              </div>
+              <img class="custom-play-icon" src="/images/icons/play-white.png" alt="Play">
+          `;
+          songContainer.appendChild(songElement);
+      });
+  }
+
+  const moodModalDisplayed = localStorage.getItem("moodModalDisplayed");
+  if (moodModalDisplayed) {
+      moodModal.style.display = "none"; 
+  }
+
+  document.querySelectorAll(".mood-item").forEach(item => {
+      item.addEventListener("click", function () {
+          openMoodModal(this.id);
+          localStorage.setItem("moodModalDisplayed", "true"); 
+      });
+  });
+
+  if (closeModalBtn) {
+      closeModalBtn.addEventListener("click", closeMoodModal);
+  }
+
+  window.addEventListener("click", function (event) {
+      if (event.target === moodModal) {
+          closeMoodModal();
+      }
+  });
 });
+
+function setMood(moodKey) {
+  const selectedMood = moods[moodKey];
+  shuffledPlaylist = selectedMood.songs;
+  currentSongIndex = 0;
+  updateSongInfo();
+}
+
+  // localStorage.clear();

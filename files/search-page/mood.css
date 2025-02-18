@@ -1,0 +1,123 @@
+.modal-mood {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal-mood-content {
+    background: var(--background-secondary);
+    padding: 5vh 2vw;
+    border-radius: 40px;
+    border: solid 1px var(--transparent-accent);
+    width: fit-content;
+    height: 70%;
+
+    display: flex;
+    gap: 2vw;
+    align-items: center;
+    position: relative;
+    justify-content: center;
+}
+
+.close {
+    position: absolute;
+    top: 3vh;
+    right: 3vw;
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: 0.3s;
+}
+
+.close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+#mood-it {
+    width: 20vw;
+    height: auto;
+    aspect-ratio: 1/1;
+    background-size: cover;
+    background-position: center;
+}
+
+.mood-songs {
+    width: 45vw;
+}
+
+.grid-moods-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 1.5vw;
+    width: 100%;
+}
+
+.custom-grid-artist-item {
+    background: linear-gradient(135deg, rgba(171, 166, 166, 0.1), rgba(226, 226, 245, 0.2));
+    align-items: center;
+    padding: 1.5vh 1.5vw;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+    justify-content: space-between;
+    display: flex;
+}
+
+.custom-play-icon:hover {
+    transform: scale(1.1);
+}
+
+.custom-item-info-cover {
+    width: 50%;
+    text-align: start;
+}
+
+.custom-track-info {
+    cursor: pointer;
+    font-size: 10px;
+}
+
+.custom-track-info:hover, .custom-track-artist:hover {
+    transform: scale(1.05);
+}
+
+.custom-track-artist-image {
+    width: 40px;
+    aspect-ratio: 1/1;
+    border-radius: 5px;
+}
+
+.custom-track-artist-image:hover {
+    filter: brightness(80%);
+    opacity: 0.9;
+}
+
+.custom-track-artist {
+    margin-top: 5px;
+    cursor: pointer;
+    font-size: 8px;
+    color: var(--accent);
+}
+
+.item-info-cover {
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px; 
+}
+
+.custom-play-icon {
+    width: clamp(10px, 30px, 40px);
+    height: auto;
+    aspect-ratio: 1/1;
+}

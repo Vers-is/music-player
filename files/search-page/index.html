@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,17 +8,19 @@
     <link rel="stylesheet" href="../main-settings.css">
     <link rel="stylesheet" href="../search-page/search.css">
     <link rel="stylesheet" href="../new-playlist.css">
+    <link rel="stylesheet" href="../search-page/mood.css">
     <link rel="stylesheet" href="../login-users.css">
     <script src="../functions.js" defer></script>
     <link rel="stylesheet" href="../player.css">
 </head>
+
 <body>
-    
+
 
     <!---------   NAVIGATION     ---------->
 
 
-     <nav class="nav-bar">   
+    <nav class="nav-bar">
         <ul class="nav-bar-list">
             <li>
                 <div class="logotype"></div>
@@ -59,7 +62,7 @@
                     <input type="file" id="changeAvatar" accept="image/*" hidden>
                     <div class="exit-button profile-option" onclick="logout()"></div>
                 </div>
-            </div>            
+            </div>
         </header>
 
         <!---------   LOGIN USERS  WINDOW     ---------->
@@ -73,12 +76,24 @@
                 <input type="password" id="password" placeholder="Пароль" class="regis-input">
                 <button onclick="checkLogin()">Войти</button>
                 <p id="errorMessage" style="color: red; display: none;">Неверный логин или пароль!</p>
-                <p style="margin-top: 2vh;">Нет аккаунта? <a class="create-account" href="/files/registration/registration.html" style="color: var(--accent); cursor: pointer;">Создать</a></p>
+                <p style="margin-top: 2vh;">Нет аккаунта? <a class="create-account"
+                        href="/files/registration/registration.html"
+                        style="color: var(--accent); cursor: pointer;">Создать</a></p>
             </div>
         </div>
 
         <!---------   MOOD SECTION     ---------->
-        
+
+        <div id="moodModal" class="modal-mood">
+            <div class="modal-mood-content">
+                <span class="close" onclick="closeMoodModal()">&times;</span>
+                <div class="mood-item" id="mood-it"></div>
+                <section class="mood-songs">
+                    <div class="grid-moods-container" id="selectedSongs"></div>
+                </section>
+            </div>
+        </div>
+
         <section class="mood">
             <div class="title">Настроение</div>
             <div class="mood-container">
@@ -114,14 +129,15 @@
                 </div>
 
                 <div class="grid-item">
-                    <img src="/images/covers/charts/красные звезды - свобода2012.png" alt="artist" class="track-artist-image">
+                    <img src="/images/covers/charts/красные звезды - свобода2012.png" alt="artist"
+                        class="track-artist-image">
                     <div class="item-info-cover">
                         <div class="track-info track-name-charts">Тут нужен я</div>
                         <div class="track-info track-artist track-artist-charts">Красные звезды</div>
                     </div>
                     <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
                 </div>
-                    
+
                 <div class="grid-item">
                     <img src="/images/covers/charts/ключевое слово - 78.png" alt="artist" class="track-artist-image">
                     <div class="item-info-cover">
@@ -141,7 +157,8 @@
                 </div>
 
                 <div class="grid-item">
-                    <img src="/images/covers/charts/noize mc - thegreatesrhits.png" alt="artist" class="track-artist-image">
+                    <img src="/images/covers/charts/noize mc - thegreatesrhits.png" alt="artist"
+                        class="track-artist-image">
                     <div class="item-info-cover">
                         <div class="track-info track-name-charts">Мое море</div>
                         <div class="track-info track-artist track-artist-charts">Noize MC</div>
@@ -150,7 +167,8 @@
                 </div>
 
                 <div class="grid-item">
-                    <img src="/images/covers/charts/noize mc - thegreatesrhits.png" alt="artist" class="track-artist-image">
+                    <img src="/images/covers/charts/noize mc - thegreatesrhits.png" alt="artist"
+                        class="track-artist-image">
                     <div class="item-info-cover">
                         <div class="track-info track-name-charts">Выдыхай</div>
                         <div class="track-info track-artist track-artist-charts">Noize MC</div>
@@ -177,7 +195,7 @@
                 </div>
             </div>
             </div>
-        </section>    
+        </section>
     </main>
 
     <!---------   CREATE PLAYLIST WINDOW     ---------->
@@ -188,7 +206,7 @@
                 <div class="title">Создать плейлист</div>
                 <span class="close" id="closeModal">&times;</span>
             </div>
-    
+
             <div class="create-cover">
                 <div class="left">
                     <label for="cover-input" class="cover-img">
@@ -197,7 +215,7 @@
                     <input type="file" id="cover-input" accept="image/*" hidden>
                     <p class="subtitle">Обложка</p>
                 </div>
-    
+
                 <div class="right">
                     <input type="text" placeholder="Название плейлиста" class="playlist-name">
                     <textarea placeholder="Описание (необязательно)" class="description"></textarea>
@@ -208,7 +226,7 @@
     </div>
 
     <!---------   PLAYER     ---------->
-    
+
     <div class="player">
         <div class="left-section">
             <img id="song-image" class="song-image" src="song1.jpg" alt="Обложка">
@@ -252,4 +270,5 @@
     <audio id="audio-player" src="song1.mp3"></audio>
 
 </body>
+
 </html>
