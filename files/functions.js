@@ -1246,35 +1246,35 @@ const albums = {
     "Starboy": {
         image: "/images/artists/weeknd-album.jpeg",
         songs: [
-            { name: "Starboy", image: "/images/covers/weeknd-starboy.jpeg", src: "/songs/The Weeknd feat. Daft Punk - Starboy.mp3" },
-            { name: "Reminder", image: "/images/covers/reminder.jpeg", src: "/songs/Reminder (Sefon.me).mp3" },
-            { name: "Die For You", src: "/songs/The Weeknd - Die For You (feat. Ariana Grande).mp3",
+            { name: "Starboy", artist: "The Weeknd", image: "/images/covers/weeknd-starboy.jpeg", src: "/songs/The Weeknd feat. Daft Punk - Starboy.mp3" },
+            { name: "Reminder", artist: "The Weeknd", image: "/images/covers/reminder.jpeg", src: "/songs/Reminder (Sefon.me).mp3" },
+            { name: "Die For You",artist: "The Weeknd", src: "/songs/The Weeknd - Die For You (feat. Ariana Grande).mp3",
             image: "/images/covers/dieforyou.jpeg"  },
-            { name: "Stargirl Interlude", image: "/images/covers/stargirl.png", src: "/songs/The Weeknd feat. Lana Del Rey - Stargirl (Interlude).mp3" },
-            { name: "I Feel It Coming", image: "/images/covers/ifeel.png", src: "/songs/The Weeknd - I Feel It Coming.mp3" },
-            { name: "Six Feet Under", image: "/images/covers/sixfeet.png", src: "/songs/The Weeknd - Six Feet Under.mp3" }
+            { name: "Stargirl Interlude", artist: "The Weeknd", image: "/images/covers/stargirl.png", src: "/songs/The Weeknd feat. Lana Del Rey - Stargirl (Interlude).mp3" },
+            { name: "I Feel It Coming", artist: "The Weeknd", image: "/images/covers/ifeel.png", src: "/songs/The Weeknd - I Feel It Coming.mp3" },
+            { name: "Six Feet Under", artist: "The Weeknd", image: "/images/covers/sixfeet.png", src: "/songs/The Weeknd - Six Feet Under.mp3" }
         ]
     },
         "Graduation": {
         image: "/images/artists/kanye-album.jpeg",
         songs: [
-            { name: "Flashing Lights", image: "/images/artists/kanye-album.jpeg", src: "/songs/Flash Lights (Sefon.me).mp3" },
-            { name: "Good Morning", image: "/images/artists/kanye-album.jpeg", src: "/songs/Kanye West - Good Morning.mp3" },
-            { name: "Stronger", image: "/images/artists/kanye-album.jpeg", src: "/songs/Stronger (OST Мальчишник 2. Из Вегаса В Бангкок) (Sefon.me).mp3" },
-            { name: "I Love It", image: "/images/covers/iloveit.jpeg", src: "/songs/Kanye West & Lil Pump - I Love It.mp3" },
-            { name: "Praise God", image: "/images/covers/praise.jpeg", src: "/songs/Kanye West - Praise God.mp3" },
-            { name: "Monster", image: "/images/covers/monster.jpeg", src: "/songs/Monster (Sefon.me).mp3" }
+            { name: "Flashing Lights", artist: "Kanye West", image: "/images/artists/kanye-album.jpeg", src: "/songs/Flash Lights (Sefon.me).mp3" },
+            { name: "Good Morning", artist: "Kanye West", image: "/images/artists/kanye-album.jpeg", src: "/songs/Kanye West - Good Morning.mp3" },
+            { name: "Stronger", artist: "Kanye West", image: "/images/artists/kanye-album.jpeg", src: "/songs/Stronger (OST Мальчишник 2. Из Вегаса В Бангкок) (Sefon.me).mp3" },
+            { name: "I Love It", artist: "Kanye West", image: "/images/covers/iloveit.jpeg", src: "/songs/Kanye West & Lil Pump - I Love It.mp3" },
+            { name: "Praise God", artist: "Kanye West", image: "/images/covers/praise.jpeg", src: "/songs/Kanye West - Praise God.mp3" },
+            { name: "Monster", artist: "Kanye West", image: "/images/covers/monster.jpeg", src: "/songs/Monster (Sefon.me).mp3" }
         ]
     },
             "Reload": {
         image: "/images/artists/jax album.jpeg",
         songs: [
-            { name: "Эсиндеби", image: "/images/artists/jax album.jpeg", src: "/songs/эсиндеби.mp3" },
-            { name: "БСББ", image: "/images/artists/jax album.jpeg", src: "/songs/бсбб.mp3" },
-            { name: "Коюп Кой", image: "/images/artists/jax album.jpeg", src: "/songs/коюп-кой.mp3" },
-             { name: "Зая", image: "/images/artists/jax album.jpeg", src: "/songs/зая.mp3" },
-            { name: "Брудершафт", image: "/images/artists/jax album.jpeg", src: "/songs/брудершафт.mp3" },
-             { name: "Себелеп", image: "/images/artists/jax album.jpeg", src: "/songs/Jax (02.14) - Sebelep.mp3" },
+            { name: "Эсиндеби", artist: "Jax (02.14)", image: "/images/artists/jax album.jpeg", src: "/songs/эсиндеби.mp3" },
+            { name: "БСББ", artist: "Jax (02.14)", image: "/images/artists/jax album.jpeg", src: "/songs/бсбб.mp3" },
+            { name: "Коюп Кой" , artist: "Jax (02.14)", image: "/images/artists/jax album.jpeg", src: "/songs/коюп-кой.mp3" },
+             { name: "Зая" , artist: "Jax (02.14)", image: "/images/artists/jax album.jpeg", src: "/songs/зая.mp3" },
+            { name: "Брудершафт" , artist: "Jax (02.14)", image: "/images/artists/jax album.jpeg", src: "/songs/брудершафт.mp3" },
+             { name: "Себелеп" , artist: "Jax (02.14)", image: "/images/artists/jax album.jpeg", src: "/songs/Jax (02.14) - Sebelep.mp3" },
         ]
     }
 };
@@ -1334,7 +1334,7 @@ function createAlbumSongItem(song, albumName, index) {
         <img src="${song.image}" alt="Song Image" class="track-artist-image">
         <div class="item-info-cover">
             <div class="track-info track-name-history">${song.name}</div>
-            <div class="track-info track-artist track-artist-history">${albumName}</div>
+            <div class="track-info track-artist track-artist-history">${song.artist}</div>
         </div>
         <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
     `;
@@ -1380,7 +1380,7 @@ function playSongFromAlbum(song, songIndex) {
     // Обновляем информацию в нижнем плеере
     document.getElementById("song-image").src = song.image;
     document.getElementById("song-name").textContent = song.name;
-    document.getElementById("song-artist").textContent = albumName;
+    document.getElementById("song-artist").textContent = song.artist;  // Выводим имя исполнителя
 
     // Сохраняем текущую песню в localStorage
     localStorage.setItem("currentSongIndex", songIndex);
@@ -1388,6 +1388,7 @@ function playSongFromAlbum(song, songIndex) {
     localStorage.setItem("songName", song.name);
     localStorage.setItem("songAlbum", albumName);
 }
+
 
 function updateAlbumIcons(currentSongIndex, isPlaying) {
     // Обновляем иконки в модальном окне альбома
