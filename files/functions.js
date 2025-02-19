@@ -1032,6 +1032,7 @@ window.onload = function() {
 };
 
 
+
 //////////// ARTISTS - WINDOW //////////////
 const artists = {
     "Eminem": {
@@ -1075,152 +1076,158 @@ const artists = {
         ]
     }
   }
+let currentAudio = null;
+let currentPlayIcon = null;
+const artistPlayIcons = new Map();
 
-  let currentAudio = null;
-  let currentPlayIcon = null;
-  const artistPlayIcons = new Map();
-  
-  function openArtistModal(artistName) {
-      const modal = document.getElementById("artistModal");
-      const artistImage = document.getElementById("artistImage");
-      const artistTitle = document.getElementById("artistName");
-      const popularSongs = document.getElementById("popularSongs");
-  
-      if (artists[artistName]) {
-          artistTitle.textContent = artistName;
-          artistImage.src = artists[artistName].image;
-          popularSongs.innerHTML = "";
-          artistPlayIcons.clear();
-  
-          artists[artistName].songs.slice(0, 3).forEach((song, index) => {
-              const songItem = createSongItem(song, artistName, index);
-              popularSongs.appendChild(songItem);
-          });
-  
-          modal.style.display = "flex";
-      }
-  }
-  
-  function closeArtistModal() {
-      document.getElementById("artistModal").style.display = "none";
-      if (currentAudio) {
-          currentAudio.pause();
-          currentAudio = null;
-          localStorage.setItem("isPlaying", "false");
-      }
-  }
-  
-  function createSongItem(song, artistName, index) {
-      const songItem = document.createElement("div");
-      songItem.classList.add("grid-item");
-  
-      songItem.innerHTML = `
-          <img src="${song.image}" alt="Song Image" class="track-artist-image">
-          <div class="item-info-cover">
-              <div class="track-info track-name-history">${song.name}</div>
-              <div class="track-info track-artist track-artist-history">${artistName}</div>
-          </div>
-          <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
-      `;
-  
-      const playIcon = songItem.querySelector(".play-icon");
-      artistPlayIcons.set(index, playIcon);
-  
-      playIcon.addEventListener("click", (event) => {
-          event.stopPropagation(); 
-          playSongFromArtist(song, index);
-      });
-  
-      return songItem;
-  }
-  
-  function playSongFromArtist(song, songIndex) {
-    const currentSongIndex = localStorage.getItem("currentSongIndex");
+function openArtistModal(artistName) {
+    const modal = document.getElementById("artistModal");
+    const artistImage = document.getElementById("artistImage");
+    const artistTitle = document.getElementById("artistName");
+    const popularSongs = document.getElementById("popularSongs");
+
+    if (artists[artistName]) {
+        artistTitle.textContent = artistName;
+        artistImage.src = artists[artistName].image;
+        popularSongs.innerHTML = "";
+        artistPlayIcons.clear();
+
+        artists[artistName].songs.slice(0, 3).forEach((song, index) => {
+            const songItem = createSongItem(song, artistName, index);
+            popularSongs.appendChild(songItem);
+        });
+
+        modal.style.display = "flex";
+    }
+}
+
+function closeArtistModal() {
+    document.getElementById("artistModal").style.display = "none";
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+        localStorage.setItem("isPlaying", "false");
+    }
+}
+
+function createSongItem(song, artistName, index) {
+    const songItem = document.createElement("div");
+    songItem.classList.add("grid-item");
+
+    songItem.innerHTML = `
+        <img src="${song.image}" alt="Song Image" class="track-artist-image">
+        <div class="item-info-cover">
+            <div class="track-info track-name-history">${song.name}</div>
+            <div class="track-info track-artist track-artist-history">${artistName}</div>
+        </div>
+        <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
+    `;
+
+    const playIcon = songItem.querySelector(".play-icon");
+    artistPlayIcons.set(index, playIcon);
+
+    playIcon.addEventListener("click", (event) => {
+        event.stopPropagation(); 
+        playSongFromArtist(song, index);
+    });
+
+    return songItem;
+}
+
+function playSongFromArtist(song, songIndex) {
     const currentSongSrc = localStorage.getItem("songSrc");
 
-    // Если эта песня уже играет, то при клике на неё будет ставиться на паузу
-    if (currentSongSrc === song.src && currentAudio && !currentAudio.paused) {
-        currentAudio.pause();
-        updateIcons(songIndex, false); // Обновить иконку на play
+    // Найдём текущего исполнителя по песне
+    let artistName = "Unknown Artist";
+    for (const [key, value] of Object.entries(artists)) {
+        if (value.songs.includes(song)) {
+            artistName = key;
+            break;
+        }
+    }
+
+    // Если песня уже играет, ставим на паузу
+    if (currentSongSrc === song.src && !audioPlayer.paused) {
+        audioPlayer.pause();
+        updateIcons(songIndex, false);
         localStorage.setItem("isPlaying", "false");
         return;
     }
 
-    // Если играет другая песня, остановим её
-    if (currentAudio) {
-        currentAudio.pause(); // Останавливаем текущую песню
-        currentAudio = null;
-    }
-
-    // Создание нового объекта аудио и воспроизведение
-    currentAudio = new Audio(song.src);
-    currentAudio.play().then(() => {
-        updateIcons(songIndex, true); // Иконка меняется на pause
+    // Устанавливаем новую песню в глобальном плеере
+    audioPlayer.src = song.src;
+    audioPlayer.play().then(() => {
+        updateIcons(songIndex, true);
         localStorage.setItem("isPlaying", "true");
-    }).catch(err => {
-        console.error("Error playing audio:", err);
-    });
+    }).catch(err => console.error("Error playing audio:", err));
 
-    // Обновляем плеер с новой песней
+    // Обновляем информацию в нижнем плеере
     document.getElementById("song-image").src = song.image;
     document.getElementById("song-name").textContent = song.name;
-    document.getElementById("song-artist").textContent = song.artist;
+    document.getElementById("song-artist").textContent = artistName;
 
-    // Сохраняем информацию о текущей песне в localStorage
+    // Сохраняем текущую песню в localStorage
     localStorage.setItem("currentSongIndex", songIndex);
     localStorage.setItem("songSrc", song.src);
     localStorage.setItem("songName", song.name);
-    localStorage.setItem("songArtist", song.artist);
+    localStorage.setItem("songArtist", artistName);
 }
 
 function updateIcons(currentSongIndex, isPlaying) {
-  const player = document.querySelector(".player");
-  if (!player) return; 
+    // Обновляем иконки в модальном окне
+    artistPlayIcons.forEach((icon, index) => {
+        icon.src = index === currentSongIndex && isPlaying 
+            ? "/images/icons/pause-white.png" 
+            : "/images/icons/play-white.png";
+    });
 
-  artistPlayIcons.forEach((icon, index) => {
-      if (index === currentSongIndex) {
-          icon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
-      } else {
-          icon.src = "/images/icons/play-white.png";
-      }
-  });
-
-  const currentSongName = localStorage.getItem("songName");
-  const currentSongArtist = localStorage.getItem("songArtist");
-
-  if (currentSongName && currentSongArtist) {
-      const songNameElement = player.querySelector(".current-song-name");
-      const songArtistElement = player.querySelector(".current-song-artist");
-
-      if (songNameElement && songArtistElement) {
-          songNameElement.textContent = currentSongName;
-          songArtistElement.textContent = currentSongArtist;
-          player.style.display = "block"; 
-      } 
-  }
+    // Обновляем иконку в нижнем плеере
+    const bottomPlayIcon = document.getElementById("bottomPlayIcon");
+    if (bottomPlayIcon) {
+        bottomPlayIcon.src = isPlaying 
+            ? "/images/icons/pause-white.png" 
+            : "/images/icons/play-white.png";
+    }
 }
 
-  if (currentAudio) {
-      currentAudio.addEventListener("pause", () => {
-          const currentSongIndex = localStorage.getItem("currentSongIndex");
-          updateIcons(currentSongIndex, false);
-          localStorage.setItem("isPlaying", "false");
-      });
-  
-      currentAudio.addEventListener("ended", () => {
-          const currentSongIndex = localStorage.getItem("currentSongIndex");
-          updateIcons(currentSongIndex, false);
-          localStorage.setItem("isPlaying", "false");
-      });
-  }
-  
-  document.querySelectorAll(".artist-card a").forEach(link => {
-      link.addEventListener("click", (event) => {
-          event.preventDefault();
-          const artistName = event.currentTarget.querySelector("p").textContent;
-          openArtistModal(artistName);
-      });
-  });
+audioPlayer.addEventListener("play", () => {
+    updateIcons(localStorage.getItem("currentSongIndex"), true);
+    localStorage.setItem("isPlaying", "true");
+
+    // Обновляем верхний плеер
+    updateTopPlayer();
+});
+
+audioPlayer.addEventListener("pause", () => {
+    updateIcons(localStorage.getItem("currentSongIndex"), false);
+    localStorage.setItem("isPlaying", "false");
+
+    // Обновляем верхний плеер
+    updateTopPlayer();
+});
+
+audioPlayer.addEventListener("ended", () => {
+    updateIcons(localStorage.getItem("currentSongIndex"), false);
+    localStorage.setItem("isPlaying", "false");
+});
+
+function updateTopPlayer() {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    const songTitle = songs[currentSongIndex]?.title || "Unknown Song";
+    const songArtist = songs[currentSongIndex]?.artist || "Unknown Artist";
+
+    document.getElementById("songTitle").textContent = songTitle;
+    document.getElementById("artistName").textContent = songArtist;
+}
+
+
+document.querySelectorAll(".artist-card a").forEach(link => {
+    link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const artistName = event.currentTarget.querySelector("p").textContent;
+        openArtistModal(artistName);
+    });
+});
   
 /////////////  MOOD
 
