@@ -80,19 +80,19 @@
         </div>
 
         <!---------   ARTISTS     ---------->
-<div id="artistModal" class="modal-artists">
-    <div class="modal-artists-content">
-        <span class="close" onclick="closeArtistModal()">&times;</span>
-        <div class="artist-info">
-            <h2 id="artistName"></h2>
-            <img id="artistImage" src="" alt="Artist">
+        <div id="artistModal" class="modal-artists">
+            <div class="modal-artists-content">
+                <span class="close" onclick="closeArtistModal()">&times;</span>
+                <div class="artist-info">
+                    <h2 id="artistName"></h2>
+                    <img id="artistImage" src="" alt="Artist">
+                </div>
+                <section class="popular-songs">
+                    <div class="title">Популярные песни</div>
+                    <div class="grid-artists-container" id="popularSongs"></div>
+                </section>
+            </div>
         </div>
-        <section class="popular-songs">
-            <div class="title">Популярные песни</div>
-            <div class="grid-artists-container" id="popularSongs"></div>
-        </section>
-    </div>
-</div>
 
         <div class="artists">
             <div class="artist-card">
@@ -134,41 +134,51 @@
 
         <!---------   ALBUMS    ---------->
 
-        <div class="albums">
+    <div id="albumModal" class="modal-album">
+        <div class="modal-album-content">
+            <span class="close" onclick="closeAlbumModal()">&times;</span>
+            <div class="album-info">
+                <h2 id="albumName"></h2>
+                <img id="albumImage" src="" alt="album">
+            </div>
+            <section class="songs">
+                <div class="grid-album-container" id="albumSongs"></div>
+            </section>
+        </div>
+    </div>
+    
+    <div class="albums">
+        <div class="title">Альбомы</div>
+        <div class="content-cover">
+        
+            <div class="album-card album-starboy">
+                <a href="/">
+                    <img src="/images/artists/weeknd-album.jpeg" alt="">
+                        <p>Starboy</p>
+                </a>
+            </div>
 
-            <div class="title">Альбомы</div>
-
-            <div class="content-cover">
-                <div class="album-card">
-                    <a href="/">
-                        <img src="/images/artists/eminem-album.jpeg" alt="">
-                        <p>The Eminem Show</p>
-                    </a>
-                </div>
-
-                <div class="album-card">
+            <div class="album-card album-eminem">
+                <a href="/">
+                    <img src="/images/artists/eminem-album.jpeg" alt="">
+                    <p>The Eminem Show</p>
+                </a>
+            </div>
+    
+            <div class="album-card album-graduation">
+                <a href="/">
+                    <img src="/images/artists/kanye-album.jpeg" alt="">
+                    <p>Graduation</p>
+                </a>
+            </div>
+                <div class="album-card album-reload">
                     <a href="/">
                         <img src="/images/artists/jax album.jpeg" alt="">
                         <p>Reload</p>
                     </a>
                 </div>
-
-                <div class="album-card">
-                    <a href="/">
-                        <img src="/images/artists/weeknd-album.jpeg" alt="">
-                        <p>Starboy</p>
-                    </a>
-                </div>
-
-                <div class="album-card">
-                    <a href="/">
-                        <img src="/images/artists/kanye-album.jpeg" alt="">
-                        <p>Graduation</p>
-                    </a>
-                </div>
-            </div>
-
         </div>
+    </div>
 
         <!---------   HISTORY SECTION     ---------->
 

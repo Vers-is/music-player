@@ -1228,7 +1228,209 @@ document.querySelectorAll(".artist-card a").forEach(link => {
         openArtistModal(artistName);
     });
 });
-  
+
+//////////// ALBUMS - WINDOW //////////////
+const albums = {
+    "The Eminem Show": {
+        image: "/images/artists/eminem-album.jpeg",
+        songs: [
+            { name: "Without Me", artist: "Eminem", image: "/images/artists/eminem-album.jpeg", src: "/songs/Without Me (Sefon.Pro).mp3" },
+            { name: "Sing For The Moment", artist: "Eminem", image: "/images/covers/sing-for-the-moment.jpeg", src: "/songs/Sing For The Moment (Sefon.Pro).mp3" },
+            { name: "The Real Slim Shady", artist: "Eminem", image: "/images/artists/eminem-album.jpeg", src: "/songs/The Real Slim Shady (Sefon.me).mp3" },
+            { name: "Smack That", artist: "Eminem", image: "/images/covers/smack-that.webp", src: "/songs/Eminem ft. Akon - Smack That.mp3" },
+            { name: "Not Afraid", artist: "Eminem", image: "/images/covers/eminem-notafraid.jpeg", src: "/songs/Eminem - No Afraid.mp3" },
+            { name: "Superman", artist: "Eminem", image: "/images/artists/eminem-album.jpeg", src: "/songs/Eminem - Superman.mp3" }, 
+        ]
+    },
+
+    "Starboy": {
+        image: "/images/artists/weeknd-album.jpeg",
+        songs: [
+            { name: "Starboy", image: "/images/covers/weeknd-starboy.jpeg", src: "/songs/The Weeknd feat. Daft Punk - Starboy.mp3" },
+            { name: "Reminder", image: "/images/covers/reminder.jpeg", src: "/songs/Reminder (Sefon.me).mp3" },
+            { name: "Die For You", src: "/songs/The Weeknd - Die For You (feat. Ariana Grande).mp3",
+            image: "/images/covers/dieforyou.jpeg"  },
+            { name: "Stargirl Interlude", image: "/images/covers/stargirl.png", src: "/songs/The Weeknd feat. Lana Del Rey - Stargirl (Interlude).mp3" },
+            { name: "I Feel It Coming", image: "/images/covers/ifeel.png", src: "/songs/The Weeknd - I Feel It Coming.mp3" },
+            { name: "Six Feet Under", image: "/images/covers/sixfeet.png", src: "/songs/The Weeknd - Six Feet Under.mp3" }
+        ]
+    },
+        "Graduation": {
+        image: "/images/artists/kanye-album.jpeg",
+        songs: [
+            { name: "Flashing Lights", image: "/images/artists/kanye-album.jpeg", src: "/songs/Flash Lights (Sefon.me).mp3" },
+            { name: "Good Morning", image: "/images/artists/kanye-album.jpeg", src: "/songs/Kanye West - Good Morning.mp3" },
+            { name: "Stronger", image: "/images/artists/kanye-album.jpeg", src: "/songs/Stronger (OST Мальчишник 2. Из Вегаса В Бангкок) (Sefon.me).mp3" },
+            { name: "I Love It", image: "/images/covers/iloveit.jpeg", src: "/songs/Kanye West & Lil Pump - I Love It.mp3" },
+            { name: "Praise God", image: "/images/covers/praise.jpeg", src: "/songs/Kanye West - Praise God.mp3" },
+            { name: "Monster", image: "/images/covers/monster.jpeg", src: "/songs/Monster (Sefon.me).mp3" }
+        ]
+    },
+            "Reload": {
+        image: "/images/artists/jax album.jpeg",
+        songs: [
+            { name: "Эсиндеби", image: "/images/artists/jax album.jpeg", src: "/songs/эсиндеби.mp3" },
+            { name: "БСББ", image: "/images/artists/jax album.jpeg", src: "/songs/бсбб.mp3" },
+            { name: "Коюп Кой", image: "/images/artists/jax album.jpeg", src: "/songs/коюп-кой.mp3" },
+             { name: "Зая", image: "/images/artists/jax album.jpeg", src: "/songs/зая.mp3" },
+            { name: "Брудершафт", image: "/images/artists/jax album.jpeg", src: "/songs/брудершафт.mp3" },
+             { name: "Себелеп", image: "/images/artists/jax album.jpeg", src: "/songs/Jax (02.14) - Sebelep.mp3" },
+        ]
+    }
+};
+
+let currentAlbumAudio = null;
+let currentAlbumPlayIcon = null;
+const albumPlayIcons = new Map();
+
+function openAlbumModal(albumName) {
+    const modal = document.getElementById("albumModal");
+    const modalContent = document.querySelector(".modal-album-content"); // Контейнер модального окна
+    const albumImage = document.getElementById("albumImage");
+    const albumTitle = document.getElementById("albumName");
+    const albumSongs = document.getElementById("albumSongs");
+
+    if (albums[albumName]) {
+        albumTitle.textContent = albumName;
+        albumImage.src = albums[albumName].image;
+        albumSongs.innerHTML = "";
+        albumPlayIcons.clear();
+
+        albums[albumName].songs.forEach((song, index) => {
+            const songItem = createAlbumSongItem(song, albumName, index);
+            albumSongs.appendChild(songItem);
+        });
+
+        // Получаем div альбома, который был нажат
+        const albumCard = [...document.querySelectorAll(".album-card")].find(card => 
+            card.querySelector("p").textContent === albumName
+        );
+
+        if (albumCard) {
+            const albumBg = getComputedStyle(albumCard).getPropertyValue("--album-bg");
+            modalContent.style.setProperty("--album-bg", albumBg);
+        }
+
+        modal.style.display = "flex";
+    }
+}
+
+
+function closeAlbumModal() {
+    document.getElementById("albumModal").style.display = "none";
+    if (currentAlbumAudio) {
+        currentAlbumAudio.pause();
+        currentAlbumAudio = null;
+        localStorage.setItem("isPlaying", "false");
+    }
+}
+
+
+function createAlbumSongItem(song, albumName, index) {
+    const songItem = document.createElement("div");
+    songItem.classList.add("grid-item");
+
+    songItem.innerHTML = `
+        <img src="${song.image}" alt="Song Image" class="track-artist-image">
+        <div class="item-info-cover">
+            <div class="track-info track-name-history">${song.name}</div>
+            <div class="track-info track-artist track-artist-history">${albumName}</div>
+        </div>
+        <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
+    `;
+
+    const playIcon = songItem.querySelector(".play-icon");
+    albumPlayIcons.set(index, playIcon);
+
+    playIcon.addEventListener("click", (event) => {
+        event.stopPropagation(); 
+        playSongFromAlbum(song, index);
+    });
+
+    return songItem;
+}
+
+function playSongFromAlbum(song, songIndex) {
+    const currentSongSrc = localStorage.getItem("songSrc");
+
+    // Найдём текущий альбом по песне
+    let albumName = "Unknown Album";
+    for (const [key, value] of Object.entries(albums)) {
+        if (value.songs.includes(song)) {
+            albumName = key;
+            break;
+        }
+    }
+
+    // Если песня уже играет, ставим на паузу
+    if (currentSongSrc === song.src && !audioPlayer.paused) {
+        audioPlayer.pause();
+        updateAlbumIcons(songIndex, false);
+        localStorage.setItem("isPlaying", "false");
+        return;
+    }
+
+    // Устанавливаем новую песню в глобальном плеере
+    audioPlayer.src = song.src;
+    audioPlayer.play().then(() => {
+        updateAlbumIcons(songIndex, true);
+        localStorage.setItem("isPlaying", "true");
+    }).catch(err => console.error("Error playing audio:", err));
+
+    // Обновляем информацию в нижнем плеере
+    document.getElementById("song-image").src = song.image;
+    document.getElementById("song-name").textContent = song.name;
+    document.getElementById("song-artist").textContent = albumName;
+
+    // Сохраняем текущую песню в localStorage
+    localStorage.setItem("currentSongIndex", songIndex);
+    localStorage.setItem("songSrc", song.src);
+    localStorage.setItem("songName", song.name);
+    localStorage.setItem("songAlbum", albumName);
+}
+
+function updateAlbumIcons(currentSongIndex, isPlaying) {
+    // Обновляем иконки в модальном окне альбома
+    albumPlayIcons.forEach((icon, index) => {
+        icon.src = index === currentSongIndex && isPlaying 
+            ? "/images/icons/pause-white.png" 
+            : "/images/icons/play-white.png";
+    });
+
+    // Обновляем иконку в нижнем плеере
+    const bottomPlayIcon = document.getElementById("bottomPlayIcon");
+    if (bottomPlayIcon) {
+        bottomPlayIcon.src = isPlaying 
+            ? "/images/icons/pause-white.png" 
+            : "/images/icons/play-white.png";
+    }
+}
+
+// События для обновления состояния плеера
+audioPlayer.addEventListener("play", () => {
+    updateAlbumIcons(localStorage.getItem("currentSongIndex"), true);
+    localStorage.setItem("isPlaying", "true");
+});
+
+audioPlayer.addEventListener("pause", () => {
+    updateAlbumIcons(localStorage.getItem("currentSongIndex"), false);
+    localStorage.setItem("isPlaying", "false");
+});
+
+audioPlayer.addEventListener("ended", () => {
+    updateAlbumIcons(localStorage.getItem("currentSongIndex"), false);
+    localStorage.setItem("isPlaying", "false");
+});
+
+// Подключаем обработчики нажатий для альбомов
+document.querySelectorAll(".album-card a").forEach(link => {
+    link.addEventListener("click", (event) => {
+        event.preventDefault();
+        const albumName = event.currentTarget.querySelector("p").textContent;
+        openAlbumModal(albumName);
+    });
+});
+
 /////////////  MOOD
 
 document.addEventListener("DOMContentLoaded", function () {

@@ -23,6 +23,7 @@
     scroll-snap-align: start;
 }
 
+
 .artist-card:hover, .album-card:hover {
     transform: scale(1.05);
 }
