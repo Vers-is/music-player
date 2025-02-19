@@ -325,6 +325,42 @@ document.addEventListener("DOMContentLoaded", function () {
     artist: "Дора",
     src: "/songs/Дора - 725.mp3",
     image: "/images/covers/дора-янекоммерция.png"
+  },
+     {
+    name: "Walking On A Dream",
+    artist: "Empire Of The Sun",
+    src: "/songs/Empire Of The Sun - Walking On A Dream.mp3",
+    image: "/images/covers/walking.jpeg"
+  },
+    {
+    name: "Get Lucky",
+    artist: "Daft Punk",
+    src: "/songs/Daft Punk - Get Lucky.mp3",
+    image: "/images/covers/getlucky.jpeg"
+  },
+      {
+    name: "Ocean Drive",
+    artist: "Duke Dumont",
+    src: "/songs/Duke Dumont - Ocean Drive.mp3",
+    image: "/images/covers/oceandrive.jpeg"
+  },
+        {
+    name: "Don't Worry",
+    artist: "Madcon feat. Ray Dalton",
+    src: "/songs/Madcon feat. Ray Dalton - Don't Worry.mp3",
+    image: "/images/covers/dontworry.jpeg"
+  },
+        {
+    name: "Girls Like You",
+    artist: "Maroon 5",
+    src: "/songs/Maroon 5 - Girls Like You.mp3",
+    image: "/images/covers/girlslike.png"
+  },
+        {
+    name: "Moves Like Jagger",
+    artist: "Maroon 5",
+    src: "/songs/Maroon 5 - Moves Like Jagger (feat. Christina Aguilera).mp3",
+    image: "/images/covers/moveslike.jpeg"
   }
   ]
 
