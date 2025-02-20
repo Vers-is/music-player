@@ -1177,8 +1177,6 @@ function updateHistoryIcons() {
         }
     });
 }
-
-
 function updatePlayPauseButton(isPlaying) {
     const playPauseBtn = document.getElementById("play-pause-btn");
     if (playPauseBtn) {
