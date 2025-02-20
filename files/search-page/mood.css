@@ -121,3 +121,14 @@
     height: auto;
     aspect-ratio: 1/1;
 }
+.modal-mood-content.sad {
+    background: linear-gradient(160deg, rgb(0, 0, 92) 0%, rgb(148, 112, 118) 100%);
+}
+
+.modal-mood-content.happy {
+    background: linear-gradient(160deg, rgb(126, 86, 0) 0%, rgb(101, 25, 81) 100%);
+}
+
+.modal-mood-content.calm {
+    background: linear-gradient(160deg, rgb(0, 114, 10) 0%, rgb(62, 20, 109) 100%);
+}

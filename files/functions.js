@@ -869,12 +869,12 @@ function playSongFromFavorites(song, favoriteIndex) {
     if (isCurrentlyPlaying) {
         audioPlayer.pause();
         updateFavoriteUI(-1);
-        updatePlayPauseButton(false); // 🔥 Обновляем иконку в нижнем плеере
+        updatePlayPauseButton(false); // Обновляем иконку в нижнем плеере
         localStorage.setItem("isPlaying", "false");
         return;
     }
 
-    // ✅ Обновляем нижний плеер
+    // Обновляем нижний плеер
     songName.textContent = song.name;
     songArtist.textContent = song.artist;
     songImage.src = song.image;
@@ -882,10 +882,9 @@ function playSongFromFavorites(song, favoriteIndex) {
 
     audioPlayer.play().then(() => {
         updateFavoriteUI(favoriteIndex);
-        updatePlayPauseButton(true); // 🔥 Теперь кнопка внизу тоже обновляется
+        updatePlayPauseButton(true); // Теперь кнопка внизу тоже обновляется
         localStorage.setItem("isPlaying", "true");
 
-        // ✅ Принудительно обновляем UI нижнего плеера
         updateBottomPlayerUI(song);
     }).catch((error) => {
         console.error("Ошибка воспроизведения:", error);
@@ -894,7 +893,6 @@ function playSongFromFavorites(song, favoriteIndex) {
     localStorage.setItem("currentSongIndex", favoriteIndex);
     localStorage.setItem("songSrc", song.src);
 
-    // 🔥 Принудительное обновление иконки кнопки плей/пауза
     updatePlayPauseButton(true);
 }
 
@@ -970,6 +968,7 @@ function updateBottomPlayerUI(song) {
 
   init();
 });
+
 //////////////// HISTORY SECTION //////////////////
 
 let history = [];
@@ -1687,6 +1686,18 @@ function openMoodModal(moodKey) {
     currentPlaylist = moodKey;
   }
 
+  // Меняем фон контента модального окна
+  const modalContent = document.querySelector(".modal-mood-content");
+  modalContent.classList.remove("sad", "happy", "calm");
+
+  if (moodKey === "sad-mood") {
+    modalContent.classList.add("sad");
+  } else if (moodKey === "happy-mood") {
+    modalContent.classList.add("happy");
+  } else if (moodKey === "calm-mood") {
+    modalContent.classList.add("calm");
+  }
+
   moodTitle.textContent = mood.name;
   moodTitle.style.backgroundImage = `url(${mood.image})`;
   moodTitle.style.backgroundSize = "cover";
@@ -1694,6 +1705,7 @@ function openMoodModal(moodKey) {
   loadPopularSongs(mood.songs);
   moodModal.style.display = "flex";
 }
+
 
 
 function closeMoodModal() {
