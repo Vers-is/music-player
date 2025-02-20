@@ -326,6 +326,12 @@ document.addEventListener("DOMContentLoaded", function () {
     src: "/songs/Дора - 725.mp3",
     image: "/images/covers/дора-янекоммерция.png"
   },
+      {
+    name: "Дора Дура (feat. Chief Keef)",
+    artist: "Дора",
+    src: "/songs/Дорадура.mp3",
+    image: "/images/covers/дорадура.jpeg"
+  },
      {
     name: "Walking On A Dream",
     artist: "Empire Of The Sun",
@@ -732,13 +738,17 @@ isPlaying = false;
 hidePlayer();
 });
 
-
-////////////////// ADD TRACK TO FAVORITE 
+//////////////// ADD TRACK TO FAVORITE //////////////////
 
 document.addEventListener("DOMContentLoaded", () => {
   const favoriteBtn = document.querySelector(".favorite img");
   const loveSongIcon = document.querySelector(".love-song-icon");
   const favoritesList = document.querySelector(".favorites-list");
+  const audioPlayer = document.getElementById("audio-player");
+  const songName = document.getElementById("song-name");
+  const songArtist = document.getElementById("song-artist");
+  const songImage = document.getElementById("song-image");
+  const playPauseBtn = document.getElementById("play-pause-btn"); // Кнопка плей/пауза в нижнем плеере
 
   let favorites = [];
   const loggedInUser = getCurrentUser(); 
@@ -748,14 +758,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getCurrentSong() {
-      const songNameElement = document.getElementById("song-name");
-      const songArtistElement = document.getElementById("song-artist");
-      const songImageElement = document.getElementById("song-image");
-
       return {
-          name: songNameElement?.textContent || "",
-          artist: songArtistElement?.textContent || "",
-          image: songImageElement?.src || "",
+          name: songName?.textContent || "",
+          artist: songArtist?.textContent || "",
+          image: songImage?.src || "",
+          src: audioPlayer?.src || "" 
       };
   }
 
@@ -764,7 +771,6 @@ document.addEventListener("DOMContentLoaded", () => {
           favorites = [];
           return;
       }
-
       const allFavorites = JSON.parse(localStorage.getItem("favorites")) || {};
       favorites = allFavorites[loggedInUser] || [];
   }
@@ -778,7 +784,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function isCurrentSongFavorite() {
       const currentSong = getCurrentSong();
-      if (!currentSong) return false;
       return favorites.some((fav) => fav.name === currentSong.name && fav.artist === currentSong.artist);
   }
 
@@ -797,7 +802,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const currentSong = getCurrentSong();
-      if (!currentSong) return;
+      if (!currentSong.name) return;
 
       const index = favorites.findIndex((song) => song.name === currentSong.name && song.artist === currentSong.artist);
       if (index !== -1) {
@@ -828,7 +833,7 @@ document.addEventListener("DOMContentLoaded", () => {
                       <div class="track-info track-name-favorite">${song.name}</div>
                       <div class="track-info track-artist track-artist-favorite">${song.artist}</div>
                   </div>
-                  <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
+                  <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon" data-index="${i}">
               `;
           } else {
               div.innerHTML = `
@@ -844,7 +849,72 @@ document.addEventListener("DOMContentLoaded", () => {
 
           favoritesList.appendChild(div);
       }
+
+      // Добавляем обработчики событий для кнопок воспроизведения
+      const favoritePlayIcons = favoritesList.querySelectorAll('.play-icon');
+      favoritePlayIcons.forEach((icon) => {
+          icon.addEventListener('click', () => {
+              const index = parseInt(icon.getAttribute("data-index"));
+              if (favorites[index]) {
+                  playSongFromFavorites(favorites[index], index);
+              }
+          });
+      });
   }
+function playSongFromFavorites(song, favoriteIndex) {
+    if (!audioPlayer) return;
+
+    const isCurrentlyPlaying = !audioPlayer.paused && audioPlayer.src === song.src;
+
+    if (isCurrentlyPlaying) {
+        audioPlayer.pause();
+        updateFavoriteUI(-1)
+        updatePlayPauseButton(false); // Обновляем иконку в нижнем плеере
+        localStorage.setItem("isPlaying", "false");
+        return;
+    }
+
+    songName.textContent = song.name;
+    songArtist.textContent = song.artist;
+    songImage.src = song.image;
+    audioPlayer.src = song.src;
+
+    audioPlayer.play().then(() => {
+        updateFavoriteUI(favoriteIndex);
+        updatePlayPauseButton(true); // ✅ Обновляем иконку плей/пауза в нижнем плеере
+        localStorage.setItem("isPlaying", "true");
+    }).catch((error) => {
+        console.error("Ошибка воспроизведения:", error);
+    });
+
+    localStorage.setItem("currentSongIndex", favoriteIndex);
+    localStorage.setItem("songSrc", song.src);
+}
+  // Функция для обновления иконки плей/пауза в нижнем плеере
+  function updatePlayPauseButton(isPlaying) {
+      if (playPauseBtn) {
+          playPauseBtn.src = isPlaying 
+              ? "/images/icons/pause-white.png" 
+              : "/images/icons/play-white.png";
+      }
+  }
+
+  audioPlayer.addEventListener("play", () => {
+      const currentSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
+      updateFavoriteIcons(currentSongIndex);
+      updatePlayPauseButton(true); // Обновляем иконку в нижнем плеере
+  });
+
+  audioPlayer.addEventListener("pause", () => {
+      updateFavoriteIcons(-1);
+      updatePlayPauseButton(false); // Обновляем иконку в нижнем плеере
+  });
+
+  audioPlayer.addEventListener("ended", () => {
+      updateFavoriteIcons(-1);
+      updatePlayPauseButton(false); // Обновляем иконку в нижнем плеере
+      localStorage.setItem("isPlaying", "false");
+  });
 
   function handleSongChange() {
       updateFavoriteUI();
@@ -876,7 +946,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   init();
 });
-
 //////////////// HISTORY SECTION //////////////////
 
 let history = [];
