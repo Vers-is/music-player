@@ -868,12 +868,13 @@ function playSongFromFavorites(song, favoriteIndex) {
 
     if (isCurrentlyPlaying) {
         audioPlayer.pause();
-        updateFavoriteUI(-1)
-        updatePlayPauseButton(false); // Обновляем иконку в нижнем плеере
+        updateFavoriteUI(-1);
+        updatePlayPauseButton(false); // 🔥 Обновляем иконку в нижнем плеере
         localStorage.setItem("isPlaying", "false");
         return;
     }
 
+    // ✅ Обновляем нижний плеер
     songName.textContent = song.name;
     songArtist.textContent = song.artist;
     songImage.src = song.image;
@@ -881,15 +882,38 @@ function playSongFromFavorites(song, favoriteIndex) {
 
     audioPlayer.play().then(() => {
         updateFavoriteUI(favoriteIndex);
-        updatePlayPauseButton(true); // ✅ Обновляем иконку плей/пауза в нижнем плеере
+        updatePlayPauseButton(true); // 🔥 Теперь кнопка внизу тоже обновляется
         localStorage.setItem("isPlaying", "true");
+
+        // ✅ Принудительно обновляем UI нижнего плеера
+        updateBottomPlayerUI(song);
     }).catch((error) => {
         console.error("Ошибка воспроизведения:", error);
     });
 
     localStorage.setItem("currentSongIndex", favoriteIndex);
     localStorage.setItem("songSrc", song.src);
+
+    // 🔥 Принудительное обновление иконки кнопки плей/пауза
+    updatePlayPauseButton(true);
 }
+
+// ✅ Функция для обновления UI нижнего плеера
+function updateBottomPlayerUI(song) {
+    songName.textContent = song.name;
+    songArtist.textContent = song.artist;
+    songImage.src = song.image;
+}
+
+  function updateFavoriteIcons(currentFavoriteIndex) {
+      const favoritePlayIcons = favoritesList.querySelectorAll('.play-icon');
+      favoritePlayIcons.forEach((icon, index) => {
+          icon.src = (index === currentFavoriteIndex && !audioPlayer.paused) 
+              ? "/images/icons/pause-white.png" 
+              : "/images/icons/play-white.png";
+      });
+  }
+
   // Функция для обновления иконки плей/пауза в нижнем плеере
   function updatePlayPauseButton(isPlaying) {
       if (playPauseBtn) {
@@ -963,6 +987,7 @@ function getCurrentSong() {
         name: songNameElement?.textContent || "",
         artist: songArtistElement?.textContent || "",
         image: songImageElement?.src || "",
+        src: audioPlayer.src || "" // Добавляем источник аудиофайла
     };
 }
 
@@ -1022,16 +1047,23 @@ function renderHistory() {
                 <div class="track-info track-name-history">${song.name}</div>
                 <div class="track-info track-artist track-artist-history">${song.artist}</div>
             </div>
-            <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
+            <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon" data-index="${index}">
         `;
 
-        gridItem.addEventListener("click", () => {
-            playSongFromHistory(index);
+        // Добавляем обработчик события для кнопки воспроизведения
+        const playIcon = gridItem.querySelector(".play-icon");
+        playIcon.addEventListener("click", (event) => {
+            event.stopPropagation(); // Предотвращаем всплытие события
+            const index = parseInt(playIcon.getAttribute("data-index"));
+            if (!isNaN(index) && history[index]) {
+                playSongFromHistory(index);
+            }
         });
 
         historyContainer.appendChild(gridItem);
     });
 
+    // Добавляем пустые слоты, если песен меньше maxSlots
     for (let i = displayedHistory.length; i < maxSlots; i++) {
         const gridItem = document.createElement("div");
         gridItem.classList.add("grid-item");
@@ -1049,7 +1081,6 @@ function renderHistory() {
         historyContainer.appendChild(gridItem);
     }
 }
-
 audioPlayer.addEventListener("play", () => {
     loggedInUser = getCurrentUser();
     if (!loggedInUser) return;
@@ -1099,6 +1130,80 @@ window.onload = function() {
     loadHistory();
     renderHistory();
 };
+function playSongFromHistory(index) {
+    const song = history[index];
+    if (!song || !audioPlayer) return;
+
+    if (!song.src) {
+        console.error("Нет источника аудио для этой песни:", song);
+        return;
+    }
+
+    const isCurrentlyPlaying = !audioPlayer.paused && audioPlayer.src === song.src;
+
+    if (isCurrentlyPlaying) {
+        audioPlayer.pause();
+        updatePlayPauseButton(false);
+        updateHistoryIcons(-1); // Обновляем иконки, убирая активную
+        localStorage.setItem("isPlaying", "false");
+        return;
+    }
+
+    // Обновляем нижний плеер
+    document.getElementById("song-name").textContent = song.name;
+    document.getElementById("song-artist").textContent = song.artist;
+    document.getElementById("song-image").src = song.image;
+    audioPlayer.src = song.src;
+
+    audioPlayer.play().then(() => {
+        updatePlayPauseButton(true);
+        updateHistoryIcons(index); // Обновляем иконку в истории
+        localStorage.setItem("isPlaying", "true");
+    }).catch((error) => {
+        console.error("Ошибка воспроизведения:", error);
+    });
+
+    localStorage.setItem("currentSongIndex", index);
+    localStorage.setItem("songSrc", song.src);
+}
+function updateHistoryIcons() {
+    const playIcons = document.querySelectorAll(".play-icon");
+
+    playIcons.forEach((icon, index) => {
+        if (index === 0) { // Только первая песня в истории получает иконку "пауза"
+            icon.src = "/images/icons/pause-white.png";
+        } else {
+            icon.src = "/images/icons/play-white.png";
+        }
+    });
+}
+
+
+function updatePlayPauseButton(isPlaying) {
+    const playPauseBtn = document.getElementById("play-pause-btn");
+    if (playPauseBtn) {
+        playPauseBtn.src = isPlaying 
+            ? "/images/icons/pause-white.png" 
+            : "/images/icons/play-white.png";
+    }
+}
+audioPlayer.addEventListener("play", () => {
+    updatePlayPauseButton(true); // Обновляем иконку плей/пауза в нижнем плеере
+    localStorage.setItem("isPlaying", "true");
+});
+
+audioPlayer.addEventListener("pause", () => {
+    updatePlayPauseButton(false);
+    updateHistoryIcons(-1); // Сбрасываем иконки в истории
+    localStorage.setItem("isPlaying", "false");
+});
+
+audioPlayer.addEventListener("ended", () => {
+    updatePlayPauseButton(false);
+    updateHistoryIcons(-1); // Сбрасываем иконки в истории
+    localStorage.setItem("isPlaying", "false");
+});
+
 
 
 
