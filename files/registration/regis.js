@@ -32,6 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         localStorage.setItem("loggedInUser", username);
 
-        window.location.href = "/files/search-page/index.html";
+        window.location.href = "../index.html";
     });
 });
