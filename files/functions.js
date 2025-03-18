@@ -74,154 +74,284 @@ document.querySelectorAll('.nav_links').forEach(link => {
       }
   }
 });
-///////////////// WINDOW -- USERS //////////////////
+// ///////////////// WINDOW -- USERS //////////////////
 
-let isAuthenticated = false;
 
-const users = {
-  "eldana": "220906",
-  "vers": "12345",
-};
+// function updateProfileIcon(username) {
+//   const profileIcon = document.getElementById("profileIcon");
+//   const avatarSrc = avatars[username] || avatars["default"];
 
-let avatars = JSON.parse(localStorage.getItem("avatars")) || {
-  "eldana": "/images/eldana.png",
-  "vers": "/images/sasha.png",
-  "default": "/images/default-avatar.png"
-};
+//   profileIcon.style.backgroundImage = `url(${avatarSrc})`;
+//   profileIcon.style.backgroundSize = "cover";
+//   profileIcon.style.backgroundPosition = "center";
+//   profileIcon.style.backgroundRepeat = "no-repeat";
+// }
 
-let loggedInUser = localStorage.getItem("loggedInUser") || null;
+// document.getElementById("profileIcon").addEventListener("click", () => {
+//   if (loggedInUser) {
+//       const menu = document.getElementById("profileMenu");
+//       menu.style.display = menu.style.display === "block" ? "none" : "block";
+//   } else {
+//       openLoginModal();
+//   }
+// });
 
-function updateProfileIcon(username) {
-  const profileIcon = document.getElementById("profileIcon");
-  const avatarSrc = avatars[username] || avatars["default"];
+// window.addEventListener("click", (e) => {
+//   const menu = document.getElementById("profileMenu");
+//   if (!e.target.closest("#profileIcon") && !e.target.closest("#profileMenu")) {
+//       menu.style.display = "none";
+//   }
+// });
 
-  profileIcon.style.backgroundImage = `url(${avatarSrc})`;
-  profileIcon.style.backgroundSize = "cover";
-  profileIcon.style.backgroundPosition = "center";
-  profileIcon.style.backgroundRepeat = "no-repeat";
-}
+// function logout() {
+// document.getElementById("profileMenu").style.display = "none";
 
-document.getElementById("profileIcon").addEventListener("click", () => {
-  if (loggedInUser) {
-      const menu = document.getElementById("profileMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
-  } else {
-      openLoginModal();
-  }
-});
+// const confirmLogout = confirm("Вы точно хотите выйти из аккаунта?");
+// if (confirmLogout) {
+//     localStorage.removeItem("loggedInUser"); 
+//     loggedInUser = null; 
+//     isAuthenticated = false;
 
-window.addEventListener("click", (e) => {
-  const menu = document.getElementById("profileMenu");
-  if (!e.target.closest("#profileIcon") && !e.target.closest("#profileMenu")) {
-      menu.style.display = "none";
-  }
-});
+//     updateProfileIcon("default");
+//     updateProfileName("Гость");
 
-function logout() {
-document.getElementById("profileMenu").style.display = "none";
-
-const confirmLogout = confirm("Вы точно хотите выйти из аккаунта?");
-if (confirmLogout) {
-    localStorage.removeItem("loggedInUser"); 
-    loggedInUser = null; 
-    isAuthenticated = false;
-
-    updateProfileIcon("default");
-    updateProfileName("Гость");
-
-    favorites = [];
-    localStorage.removeItem("currentFavorites");
+//     favorites = [];
+//     localStorage.removeItem("currentFavorites");
     
-    const gridItems = document.querySelectorAll(".grid-item");
-    gridItems.forEach(item => {
-        item.innerHTML = "";
-        item.style.height = "10vh";
-    });
+//     const gridItems = document.querySelectorAll(".grid-item");
+//     gridItems.forEach(item => {
+//         item.innerHTML = "";
+//         item.style.height = "10vh";
+//     });
 
-    renderFavorites();
-    updateFavoriteUI();
+//     renderFavorites();
+//     updateFavoriteUI();
 
-    alert("Вы вышли из аккаунта.");
-    location.reload();
-}
-}
+//     alert("Вы вышли из аккаунта.");
+//     location.reload();
+// }
+// }
 
-document.getElementById("changeAvatar").addEventListener("change", function(event) {
-  const file = event.target.files[0];
-  if (file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-          avatars[loggedInUser] = e.target.result;
-          localStorage.setItem("avatars", JSON.stringify(avatars));
-          updateProfileIcon(loggedInUser);
-      };
-      reader.readAsDataURL(file);
-  }
+// document.getElementById("changeAvatar").addEventListener("change", function(event) {
+//   const file = event.target.files[0];
+//   if (file) {
+//       const reader = new FileReader();
+//       reader.onload = function(e) {
+//           avatars[loggedInUser] = e.target.result;
+//           localStorage.setItem("avatars", JSON.stringify(avatars));
+//           updateProfileIcon(loggedInUser);
+//       };
+//       reader.readAsDataURL(file);
+//   }
+// });
+
+// function openLoginModal() {
+//   document.getElementById("loginModal").style.display = "flex";
+// }
+
+// function closeModal() {
+//   document.getElementById("loginModal").style.display = "none";
+//   document.getElementById("username").value = "";
+//   document.getElementById("password").value = "";
+//   document.getElementById("errorMessage").style.display = "none";
+// }
+
+// document.querySelector(".close-user").addEventListener("click", closeModal);
+
+// function getUsers() {
+//   return JSON.parse(localStorage.getItem("users")) || {};
+// }
+
+// function checkLogin() {
+// const username = document.getElementById("username").value.trim();
+// const password = document.getElementById("password").value.trim();
+
+// let users = getUsers();
+
+// if (users[username] && users[username] === password) {
+//     alert("Добро пожаловать, " + username + "!");
+//     loggedInUser = username;
+//     localStorage.setItem("loggedInUser", username); 
+
+//     updateProfileIcon(username);
+//     updateProfileName(username);
+//     isAuthenticated = true;
+//     closeModal();
+//     location.reload();
+//     loadFavorites();  
+//     renderFavorites(); 
+//     updateFavoriteUI(); 
+
+// } else {
+//     document.getElementById("errorMessage").style.display = "block";
+// }
+// }
+
+
+// function updateProfileName(username) {
+//   const profileName = document.getElementById("profileName");
+//   profileName.textContent = username && getUsers()[username] ? username : "Гость";
+// }
+
+// window.onload = function() {
+//   if (loggedInUser) {
+//       isAuthenticated = true;
+//       updateProfileIcon(loggedInUser);
+//       updateProfileName(loggedInUser);
+
+//       loadFavorites(); 
+//       renderFavorites();
+//       updateFavoriteUI(); 
+//   } else {
+//       isAuthenticated = false;
+//       updateProfileIcon("default");
+//       updateProfileName("Гость");
+//   }
+// };
+document.addEventListener("DOMContentLoaded", async () => {
+    const savedUsername = localStorage.getItem("username");
+
+    if (!savedUsername) {
+        updateProfileUI(null);
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://127.0.0.1:3000/user/${savedUsername}`);
+        const data = await response.json();
+
+        if (response.ok) {
+            updateProfileUI(data);
+        } else {
+            console.error("Ошибка при получении пользователя:", data.error);
+            updateProfileUI(null);
+        }
+    } catch (error) {
+        console.error("Ошибка:", error);
+        updateProfileUI(null);
+    }
 });
 
+// Функция для обновления UI профиля
+function updateProfileUI(user) {
+    const profileName = document.getElementById("profileName");
+    const avatarElement = document.getElementById("avatarIcon");
+
+    if (user) {
+        profileName.textContent = user.username;
+        if (avatarElement) {
+            avatarElement.src = user.avatar || "/images/default-avatar.png";
+        }
+    } else {
+        profileName.textContent = "Гость";
+        if (avatarElement) {
+            avatarElement.src = "/images/default-avatar.png";
+        }
+    }
+}
+
+// Обработчик клика по иконке профиля
+document.getElementById("profileIcon").addEventListener("click", () => {
+    if (localStorage.getItem("username")) {
+        const menu = document.getElementById("profileMenu");
+        menu.style.display = menu.style.display === "block" ? "none" : "block";
+    } else {
+        openLoginModal();
+    }
+});
+
+// Закрытие меню при клике вне него
+window.addEventListener("click", (e) => {
+    const menu = document.getElementById("profileMenu");
+    if (!e.target.closest("#profileIcon") && !e.target.closest("#profileMenu")) {
+        menu.style.display = "none";
+    }
+});
+
+// Выход из аккаунта
+function logout() {
+    if (confirm("Вы точно хотите выйти из аккаунта?")) {
+        localStorage.removeItem("username");
+        updateProfileUI(null);
+        alert("Вы вышли из аккаунта.");
+        location.reload();
+    }
+}
+
+// Обработчик смены аватара
+document.getElementById("changeAvatar").addEventListener("change", async function(event) {
+    const file = event.target.files[0];
+    const username = localStorage.getItem("username");
+
+    if (file && username) {
+        const formData = new FormData();
+        formData.append("username", username);
+        formData.append("avatar", file);
+
+        try {
+            const response = await fetch("http://127.0.0.1:3000/updateAvatar", {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert("Аватар обновлен!");
+                document.getElementById("avatarIcon").src = data.avatar;
+            } else {
+                alert("Ошибка обновления аватара.");
+            }
+        } catch (error) {
+            console.error("Ошибка при обновлении аватара:", error);
+            alert("Ошибка обновления аватара.");
+        }
+    }
+});
+
+// Функции для работы с модальным окном входа
 function openLoginModal() {
-  document.getElementById("loginModal").style.display = "flex";
+    document.getElementById("loginModal").style.display = "flex";
 }
 
 function closeModal() {
-  document.getElementById("loginModal").style.display = "none";
-  document.getElementById("username").value = "";
-  document.getElementById("password").value = "";
-  document.getElementById("errorMessage").style.display = "none";
+    document.getElementById("loginModal").style.display = "none";
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+    document.getElementById("errorMessage").style.display = "none";
 }
 
 document.querySelector(".close-user").addEventListener("click", closeModal);
 
-function getUsers() {
-  return JSON.parse(localStorage.getItem("users")) || {};
-}
+document.addEventListener("DOMContentLoaded", async () => {
+    const savedUsername = localStorage.getItem("username");
+    if (!savedUsername) {
+        // Если нет имени, показываем "Гость" и выходим
+        document.getElementById("profileName").textContent = "Гость";
+        return;
+    }
 
-function checkLogin() {
-const username = document.getElementById("username").value.trim();
-const password = document.getElementById("password").value.trim();
+    // Запрос на сервер для получения данных пользователя (если требуется)
+    try {
+        const response = await fetch(`http://127.0.0.1:3000/user/${savedUsername}`);
+        const data = await response.json();
 
-let users = getUsers();
+        if (response.ok) {
+            // Показываем имя и аватар (если аватар нужно отображать)
+            document.getElementById("profileName").textContent = data.username;
+            const avatarElement = document.getElementById("avatarIcon");
+            if (avatarElement) {
+                avatarElement.src = data.avatar || "/images/default-avatar.png";
+            }
+        } else {
+            console.error("Ошибка при получении пользователя:", data.error);
+            document.getElementById("profileName").textContent = "Гость";
+        }
+    } catch (error) {
+        console.error("Ошибка:", error);
+        document.getElementById("profileName").textContent = "Гость";
+    }
+});
 
-if (users[username] && users[username] === password) {
-    alert("Добро пожаловать, " + username + "!");
-    loggedInUser = username;
-    localStorage.setItem("loggedInUser", username); 
-
-    updateProfileIcon(username);
-    updateProfileName(username);
-    isAuthenticated = true;
-    closeModal();
-    location.reload();
-    loadFavorites();  
-    renderFavorites(); 
-    updateFavoriteUI(); 
-
-} else {
-    document.getElementById("errorMessage").style.display = "block";
-}
-}
-
-
-function updateProfileName(username) {
-  const profileName = document.getElementById("profileName");
-  profileName.textContent = username && getUsers()[username] ? username : "Гость";
-}
-
-window.onload = function() {
-  if (loggedInUser) {
-      isAuthenticated = true;
-      updateProfileIcon(loggedInUser);
-      updateProfileName(loggedInUser);
-
-      loadFavorites(); 
-      renderFavorites();
-      updateFavoriteUI(); 
-  } else {
-      isAuthenticated = false;
-      updateProfileIcon("default");
-      updateProfileName("Гость");
-  }
-};
 
 ///////////////// PLAYER //////////////////
 

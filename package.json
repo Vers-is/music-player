@@ -5,10 +5,30 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.14.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
-  }
+  },
+  "name": "music-player",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Vers-is/music-player.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Vers-is/music-player/issues"
+  },
+  "homepage": "https://github.com/Vers-is/music-player#readme",
+  "description": ""
 }

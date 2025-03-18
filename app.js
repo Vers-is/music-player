@@ -1,116 +1,45 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const errorMessage = document.getElementById("errorMessage");
+// const express = require("express");
+// const session = require("express-session");
+// const cors = require("cors");
 
-    // Функция для открытия модального окна входа
-    function showLoginModal() {
-        const loginModal = document.getElementById("loginModal");
-        loginModal.style.display = "block";  // Показываем модальное окно
-    }
+// const app = express();
 
-    // Функция для закрытия модального окна
-    function closeModal() {
-        const loginModal = document.getElementById("loginModal");
-        loginModal.style.display = "none";  // Скрываем модальное окно
-    }
+// app.use(express.json());
+// app.use(cors({ origin: "http://127.0.0.1:5500", credentials: true })); // Указать адрес фронта
+// app.use(session({
+//     secret: "your_secret_key",
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: { secure: false } 
+// }));
 
-    // Добавление обработчика для закрытия модального окна
-    document.querySelector(".close-user").addEventListener("click", closeModal);
+// const users = {}; // Простая база данных (замени на PostgreSQL)
 
-    function updateProfileIcon(username) {
-        const profileIcon = document.getElementById("profileIcon");
-        const avatars = JSON.parse(localStorage.getItem("avatars")) || {
-            "default": "/images/default-avatar.png"
-        };
-        const avatarSrc = avatars[username] || avatars["default"];
+// app.post("/login", (req, res) => {
+//     const { username, password } = req.body;
 
-        profileIcon.style.backgroundImage = `url(${avatarSrc})`;
-        profileIcon.style.backgroundSize = "cover";
-        profileIcon.style.backgroundPosition = "center";
-        profileIcon.style.backgroundRepeat = "no-repeat";
-    }
+//     if (users[username] && users[username] === password) {
+//         req.session.user = username; // Сохраняем в сессии
+//         res.json({ message: "Вход успешен" });
+//     } else {
+//         res.status(401).json({ error: "Неверный логин или пароль" });
+//     }
+// });
 
-    function updateProfileName(username) {
-        const profileName = document.getElementById("profileName");
-        profileName.textContent = username || "Гость";
-    }
+// app.get("/user", (req, res) => {
+//     if (req.session.user) {
+//         res.json({ username: req.session.user });
+//     } else {
+//         res.status(401).json({ error: "Не авторизован" });
+//     }
+// });
 
-    // Код для обработки регистрации
-    document.getElementById("create")?.addEventListener("click", async () => {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
+// app.post("/logout", (req, res) => {
+//     req.session.destroy(err => {
+//         if (err) return res.status(500).json({ error: "Ошибка выхода" });
+//         res.json({ message: "Выход выполнен" });
+//     });
+// });
 
-        if (!username || !password) {
-            errorMessage.textContent = "Заполните все поля!";
-            errorMessage.style.color = "red";
-            return;
-        }
+// module.exports = app;
 
-        try {
-            const response = await fetch("http://127.0.0.1:3000/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem("loggedInUser", username);
-                alert("Регистрация успешна!");
-                updateProfileIcon(username);
-                updateProfileName(username);
-                window.location.href = "player.html";
-            } else {
-                errorMessage.textContent = data.error || "Ошибка регистрации";
-                errorMessage.style.color = "red";
-            }
-        } catch (error) {
-            console.error("Ошибка регистрации:", error);
-            errorMessage.textContent = "Нет соединения с сервером";
-            errorMessage.style.color = "red";
-        }
-    });
-
-    // Код для обработки входа
-    document.getElementById("login-button")?.addEventListener("click", async () => {
-        const username = document.getElementById("username").value.trim();
-        const password = document.getElementById("password").value.trim();
-
-        if (!username || !password) {
-            errorMessage.textContent = "Заполните все поля!";
-            errorMessage.style.color = "red";
-            return;
-        }
-
-        try {
-            const response = await fetch("http://127.0.0.1:3000/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem("loggedInUser", username);
-                alert("Вход успешен!");
-                updateProfileIcon(username);
-                updateProfileName(username);
-                window.location.href = "player.html";
-            } else {
-                errorMessage.textContent = data.error || "Ошибка входа";
-                errorMessage.style.color = "red";
-            }
-        } catch (error) {
-            console.error("Ошибка входа:", error);
-            errorMessage.textContent = "Нет соединения с сервером";
-            errorMessage.style.color = "red";
-        }
-    });
-
-    const loggedInUser = localStorage.getItem("loggedInUser");
-    if (loggedInUser) {
-        updateProfileIcon(loggedInUser);
-        updateProfileName(loggedInUser);
-    }
-});
