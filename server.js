@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const { Pool } = require("pg");
+const multer = require("multer");
+const path = require("path");
 
 const app = express();
 const port = 3000;
@@ -49,34 +51,30 @@ app.post("/register", async (req, res) => {
     }
 });
 
+app.use(express.static("music-player/images"));
+
 // Авторизация пользователя
 app.post("/login", async (req, res) => {
     const { username, password } = req.body;
 
-    if (!username || !password) {
-        return res.status(400).json({ error: "Заполните все поля" });
-    }
+    const user = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
 
-    try {
-        const userResult = await pool.query("SELECT username, password, avatar FROM users WHERE username = $1", [username]);
+    if (user.rows.length > 0) {
+        const storedPassword = user.rows[0].password;
+        
+        // Сравниваем введённый пароль с хешем в базе
+        const match = await bcrypt.compare(password, storedPassword);
 
-        if (userResult.rows.length === 0) {
-            return res.status(400).json({ error: "Неверное имя пользователя или пароль" });
+        if (match) {
+            res.json({ success: true });
+        } else {
+            res.json({ success: false });
         }
-
-        const user = userResult.rows[0];
-
-        if (!(await bcrypt.compare(password, user.password))) {
-            return res.status(400).json({ error: "Неверное имя пользователя или пароль" });
-        }
-
-        console.log("Вход выполнен для пользователя:", user.username);
-        res.json({ message: "Вход успешен", username: user.username, avatar: user.avatar });
-    } catch (error) {
-        console.error("Ошибка при входе:", error);
-        res.status(500).json({ error: "Ошибка сервера" });
+    } else {
+        res.json({ success: false });
     }
 });
+
 
 pool.connect()
     .then(() => console.log("✅ Успешное подключение к базе данных"))
@@ -104,4 +102,63 @@ app.get("/user/:username", async (req, res) => {
         console.error("Ошибка при получении данных пользователя:", error);
         res.status(500).json({ error: "Ошибка сервера" });
     }
+});// Настройка хранилища для загрузки аватаров
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/avatars"); // Папка для хранения аватаров
+    },
+    filename: (req, file, cb) => {
+        cb(null, `${req.body.username}-${Date.now()}${path.extname(file.originalname)}`);
+    }
 });
+
+// Фильтрация только изображений
+const fileFilter = (req, file, cb) => {
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+    const extname = path.extname(file.originalname).toLowerCase();
+    if (file.mimetype.startsWith("image/") && allowedExtensions.includes(extname)) {
+        cb(null, true);
+    } else {
+        cb(new Error("Файл должен быть изображением с разрешением .jpg, .jpeg, .png или .gif"), false);
+    }
+};
+
+
+
+
+// Обработчик обновления аватара
+app.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
+    try {
+        if (!req.file) {
+            throw new Error("Файл не был загружен");
+        }
+
+        console.log("Загружен файл:", req.file);
+
+        const { username } = req.body;
+        const avatarPath = `/uploads/avatars/${req.file.filename}`;
+
+        const result = await pool.query("UPDATE users SET avatar = $1 WHERE username = $2", [avatarPath, username]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: "Пользователь не найден" });
+        }
+
+        res.json({ avatar: avatarPath });
+    } catch (error) {
+        console.error("Ошибка при обновлении аватара:", error);
+        res.status(500).json({ error: error.message || "Ошибка обновления аватара" });
+    }
+});
+
+// Обслуживание статических файлов из папки uploads
+app.use("/uploads", express.static("uploads"));
+
+const fs = require("fs");
+const avatarsDir = "uploads/avatars";
+
+// Создаем папку для аватаров, если ее нет
+if (!fs.existsSync(avatarsDir)) {
+    fs.mkdirSync(avatarsDir, { recursive: true });
+}
+

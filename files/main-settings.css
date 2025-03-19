@@ -159,19 +159,41 @@ header {
 .artists, .playlists {
     margin-top: -5vh;
 }
-
-.profile-icon {
+#profileIcon {
     cursor: pointer;
-    width: auto;
-    height: 7vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     aspect-ratio: 1/1;
-    background-color: var(--accent);
-    border-radius: 50%;
+    width: 7vh;
+    height: 7vh;
+    position: relative;
 }
 
-.profile-icon:hover {
+#avatarIcon {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent);
+}
+
+#profileIcon:hover {
     filter: brightness(80%);
     opacity: 0.9;
+}
+
+#profileName {
+    position: absolute;
+    top: 8vh;
+}
+
+.icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .grid {
@@ -252,34 +274,4 @@ header,
 .nav_links,
 #create-playlist {
     display: flex;
-}
-
-#profileIcon {
-    cursor: pointer;
-    width: auto;
-    height: 7vh;
-    aspect-ratio: 1/1;
-    border-radius: 50%;
-    background-size: cover; 
-    background-position: center;
-    background-repeat: no-repeat;
-    border: solid 2px var(--transparent-accent);
-}
-
-.icon-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-#profileName {
-    position: absolute;
-    top: 8vh;
-}
-
-#profileIcon:hover {
-    filter: brightness(80%);
-    opacity: 0.9;
 }

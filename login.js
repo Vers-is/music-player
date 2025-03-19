@@ -22,11 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Сохраняем имя пользователя в localStorage
                 localStorage.setItem("username", data.username);
-
-                // Переходим на страницу, где есть sidebar
-                window.location.href = "player.html";
+                closeModal();
+                alert("Добро пожаловать, " + data.username + "!");
+                location.reload(); // Обновляем страницу для загрузки данных пользователя
             } else {
                 errorMessage.textContent = data.error || "Ошибка входа";
                 errorMessage.style.display = "block";

@@ -237,18 +237,15 @@ function updateProfileUI(user) {
     const profileName = document.getElementById("profileName");
     const avatarElement = document.getElementById("avatarIcon");
 
-    if (user) {
+    if (user?.username) {
         profileName.textContent = user.username;
-        if (avatarElement) {
-            avatarElement.src = user.avatar || "/images/default-avatar.png";
-        }
+        avatarElement.src = user.avatar || "/images/default.jpg";
     } else {
         profileName.textContent = "Гость";
-        if (avatarElement) {
-            avatarElement.src = "/images/default-avatar.png";
-        }
+        avatarElement.src = "/images/default.jpg";
     }
 }
+
 
 // Обработчик клика по иконке профиля
 document.getElementById("profileIcon").addEventListener("click", () => {
@@ -277,8 +274,47 @@ function logout() {
         location.reload();
     }
 }
+// Функции для работы с модальным окном входа
+function openLoginModal() {
+    document.getElementById("loginModal").style.display = "flex";
+}
 
-// Обработчик смены аватара
+// Функция для закрытия модального окна
+function closeModal() {
+    document.getElementById("loginModal").style.display = "none";
+    document.getElementById("login-username").value = "";
+    document.getElementById("login-password").value = "";
+    document.getElementById("errorMessage").style.display = "none";
+}
+
+document.querySelector(".close-user").addEventListener("click", closeModal);
+
+
+function checkLogin() {
+    let username = document.getElementById("username").value;
+    let password = document.getElementById("password").value;
+    let errorMessage = document.getElementById("errorMessage");
+
+    fetch("http://127.0.0.1:3000/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // ✅ Сохраняем имя пользователя в localStorage
+            localStorage.setItem("username", username);
+            window.location.href = "/files/index.html";
+        } else {
+            errorMessage.style.display = "block";
+        }
+    })
+    .catch(error => console.error("Ошибка входа:", error));
+}
+
 document.getElementById("changeAvatar").addEventListener("change", async function(event) {
     const file = event.target.files[0];
     const username = localStorage.getItem("username");
@@ -294,13 +330,15 @@ document.getElementById("changeAvatar").addEventListener("change", async functio
                 body: formData
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                alert("Аватар обновлен!");
-                document.getElementById("avatarIcon").src = data.avatar;
-            } else {
-                alert("Ошибка обновления аватара.");
-            }
+           if (response.ok) {
+              const data = await response.json();
+              alert("Аватар обновлен!");
+              document.getElementById("avatarIcon").src = data.avatar;
+          } else {
+              const errorData = await response.json();
+              alert(`Ошибка: ${errorData.error || "Ошибка обновления аватара"}`);
+          }
+
         } catch (error) {
             console.error("Ошибка при обновлении аватара:", error);
             alert("Ошибка обновления аватара.");
@@ -308,19 +346,6 @@ document.getElementById("changeAvatar").addEventListener("change", async functio
     }
 });
 
-// Функции для работы с модальным окном входа
-function openLoginModal() {
-    document.getElementById("loginModal").style.display = "flex";
-}
-
-function closeModal() {
-    document.getElementById("loginModal").style.display = "none";
-    document.getElementById("username").value = "";
-    document.getElementById("password").value = "";
-    document.getElementById("errorMessage").style.display = "none";
-}
-
-document.querySelector(".close-user").addEventListener("click", closeModal);
 
 document.addEventListener("DOMContentLoaded", async () => {
     const savedUsername = localStorage.getItem("username");
@@ -340,7 +365,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             document.getElementById("profileName").textContent = data.username;
             const avatarElement = document.getElementById("avatarIcon");
             if (avatarElement) {
-                avatarElement.src = data.avatar || "/images/default-avatar.png";
+                avatarElement.src = data.avatar || "/images/default.jpg";
             }
         } else {
             console.error("Ошибка при получении пользователя:", data.error);
