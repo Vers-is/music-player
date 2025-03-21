@@ -1,39 +1,20 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const errorMessage = document.getElementById("errorMessage");
-    const loginButton = document.getElementById("login-button");
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
 
-    loginButton.addEventListener("click", async () => {
-        const username = document.getElementById("login-username").value.trim();
-        const password = document.getElementById("login-password").value.trim();
+  try {
+    const user = await User.findOne({ where: { username } });
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
 
-        if (!username || !password) {
-            errorMessage.textContent = "Заполните все поля!";
-            errorMessage.style.display = "block";
-            return;
-        }
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Неверный пароль' });
+    }
 
-        try {
-            const response = await fetch("http://127.0.0.1:3000/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, password })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem("username", data.username);
-                closeModal();
-                alert("Добро пожаловать, " + data.username + "!");
-                location.reload(); // Обновляем страницу для загрузки данных пользователя
-            } else {
-                errorMessage.textContent = data.error || "Ошибка входа";
-                errorMessage.style.display = "block";
-            }
-        } catch (error) {
-            console.error("Ошибка входа:", error);
-            errorMessage.textContent = "Нет соединения с сервером";
-            errorMessage.style.display = "block";
-        }
-    });
+    res.json({ success: true, username: user.username });
+  } catch (error) {
+    console.error('Ошибка входа:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
 });

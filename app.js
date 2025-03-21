@@ -1,45 +1,44 @@
-// const express = require("express");
-// const session = require("express-session");
-// const cors = require("cors");
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const path = require('path');
+const sequelize = require('./config/db.config');
+const errorHandler = require('./middlewares/errorHandler');
 
-// const app = express();
+// Routes
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
 
-// app.use(express.json());
-// app.use(cors({ origin: "http://127.0.0.1:5500", credentials: true })); // Указать адрес фронта
-// app.use(session({
-//     secret: "your_secret_key",
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: { secure: false } 
-// }));
+const app = express();
 
-// const users = {}; // Простая база данных (замени на PostgreSQL)
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+  origin: 'http://127.0.0.1:5502',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // Important for cookies
+}));
 
-// app.post("/login", (req, res) => {
-//     const { username, password } = req.body;
+// Static files
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-//     if (users[username] && users[username] === password) {
-//         req.session.user = username; // Сохраняем в сессии
-//         res.json({ message: "Вход успешен" });
-//     } else {
-//         res.status(401).json({ error: "Неверный логин или пароль" });
-//     }
-// });
+// Database connection
+sequelize.authenticate()
+  .then(() => console.log('✅ Database connected successfully'))
+  .catch(err => console.error('❌ Database connection error:', err));
 
-// app.get("/user", (req, res) => {
-//     if (req.session.user) {
-//         res.json({ username: req.session.user });
-//     } else {
-//         res.status(401).json({ error: "Не авторизован" });
-//     }
-// });
+// Sync models with database
+sequelize.sync({ alter: true })
+  .then(() => console.log('✅ Tables synchronized'))
+  .catch(err => console.error('❌ Error syncing tables:', err));
 
-// app.post("/logout", (req, res) => {
-//     req.session.destroy(err => {
-//         if (err) return res.status(500).json({ error: "Ошибка выхода" });
-//         res.json({ message: "Выход выполнен" });
-//     });
-// });
+// Routes
+app.use('/api', authRoutes);
+app.use('/api/user', userRoutes);
 
-// module.exports = app;
+// Error handler (must be last)
+app.use(errorHandler);
 
+module.exports = app;

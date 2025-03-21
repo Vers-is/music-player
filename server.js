@@ -1,164 +1,180 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const bcrypt = require("bcryptjs");
-const { Pool } = require("pg");
-const multer = require("multer");
-const path = require("path");
+const express = require('express');
+const cors = require('cors');
+const bcrypt = require('bcrypt');
+const multer = require('multer');
+const fs = require('fs');
+const path = require('path');
+const sequelize = require('./config/db.config'); // Подключение к БД
+const User = require('./models/UserModel');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Подключение к базе данных PostgreSQL
-const pool = new Pool({
-    user: "eldana",
-    host: "localhost",
-    database: "music_player",
-    password: "220906", 
-    port: 5432,
-});
+// Обслуживание статических файлов
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-
-app.use(cors());
+// Middleware для парсинга JSON
 app.use(express.json());
 
-// Регистрация нового пользователя
-app.post("/register", async (req, res) => {
-    const { username, password } = req.body;
+// Настройка CORS
+app.use(cors({
+  origin: 'http://127.0.0.1:5502', // ваш фронтенд адрес
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true, // Разрешаем использовать cookies
+}));
 
-    if (!username || !password) {
-        return res.status(400).json({ error: "Заполните все поля" });
-    }
+// Проверка подключения к БД
+sequelize.authenticate()
+  .then(() => console.log('✅ Database connected successfully'))
+  .catch(err => console.error('❌ Database connection error:', err));
 
-    try {
-        // Проверяем, есть ли уже такой пользователь
-        const userCheck = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
-        if (userCheck.rows.length > 0) {
-            return res.status(400).json({ error: "Пользователь уже существует" });
-        }
+// Создание таблиц (обновление схемы без удаления данных)
+sequelize.sync({ alter: true })
+  .then(() => console.log('✅ Tables synchronized'))
+  .catch(err => console.error('❌ Error syncing tables:', err));
 
-        // Хешируем пароль
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Добавляем пользователя в базу данных
-        await pool.query("INSERT INTO users (username, password) VALUES ($1, $2)", [username, hashedPassword]);
-
-        console.log("Зарегистрирован новый пользователь:", username); // Логируем имя пользователя
-        res.json({ message: "Регистрация успешна" });
-    } catch (error) {
-        console.error("Ошибка при регистрации:", error);
-        res.status(500).json({ error: "Ошибка сервера" });
-    }
-});
-
-app.use(express.static("music-player/images"));
-
-// Авторизация пользователя
-app.post("/login", async (req, res) => {
-    const { username, password } = req.body;
-
-    const user = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
-
-    if (user.rows.length > 0) {
-        const storedPassword = user.rows[0].password;
-        
-        // Сравниваем введённый пароль с хешем в базе
-        const match = await bcrypt.compare(password, storedPassword);
-
-        if (match) {
-            res.json({ success: true });
-        } else {
-            res.json({ success: false });
-        }
-    } else {
-        res.json({ success: false });
-    }
-});
-
-
-pool.connect()
-    .then(() => console.log("✅ Успешное подключение к базе данных"))
-    .catch((err) => console.error("❌ Ошибка подключения к БД:", err));
-
-// Запуск сервера
-app.listen(port, () => {
-    console.log(`Сервер запущен на http://127.0.0.1:${port}`);
-});
-
-
-app.get("/user/:username", async (req, res) => {
-    const { username } = req.params;
-
-    try {
-        const userResult = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
-
-        if (userResult.rows.length === 0) {
-            return res.status(404).json({ error: "Пользователь не найден" });
-        }
-
-        const user = userResult.rows[0];
-        res.json({ username: user.username, avatar: user.avatar }); // Добавьте поле avatar в таблицу users, если нужно
-    } catch (error) {
-        console.error("Ошибка при получении данных пользователя:", error);
-        res.status(500).json({ error: "Ошибка сервера" });
-    }
-});// Настройка хранилища для загрузки аватаров
+// Настройка Multer для загрузки аватаров
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/avatars"); // Папка для хранения аватаров
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${req.body.username}-${Date.now()}${path.extname(file.originalname)}`);
-    }
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/avatars'); // Папка для хранения аватаров
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${req.body.username}-${Date.now()}${path.extname(file.originalname)}`);
+  },
 });
 
-// Фильтрация только изображений
 const fileFilter = (req, file, cb) => {
-    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-    const extname = path.extname(file.originalname).toLowerCase();
-    if (file.mimetype.startsWith("image/") && allowedExtensions.includes(extname)) {
-        cb(null, true);
-    } else {
-        cb(new Error("Файл должен быть изображением с разрешением .jpg, .jpeg, .png или .gif"), false);
-    }
+  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+  const extname = path.extname(file.originalname).toLowerCase();
+  if (file.mimetype.startsWith('image/') && allowedExtensions.includes(extname)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Файл должен быть изображением с разрешением .jpg, .jpeg, .png или .gif'), false);
+  }
 };
 
+const upload = multer({ storage, fileFilter });
 
+// Создаем папку для аватаров, если ее нет
+const avatarsDir = 'uploads/avatars';
+if (!fs.existsSync(avatarsDir)) {
+  fs.mkdirSync(avatarsDir, { recursive: true });
+}
 
+// Регистрация нового пользователя
+app.post('/register', async (req, res) => {
+  const { username, password } = req.body;
 
-// Обработчик обновления аватара
-app.post("/updateAvatar", upload.single("avatar"), async (req, res) => {
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Заполните все поля!' });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ error: 'Пароль должен содержать минимум 8 символов!' });
+  }
+
+  try {
+    const existingUser = await User.findOne({ where: { username } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'Пользователь с таким логином уже существует' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await User.create({
+      username,
+      password: hashedPassword,
+      email: `${username}@example.com`,
+      avatar: '/images/default.jpg',
+      isAdmin: false,
+    });
+
+    console.log('✅ Новый пользователь зарегистрирован:', newUser.dataValues);
+    return res.status(201).json({ message: 'Регистрация успешна!' });
+  } catch (error) {
+    console.error('❌ Ошибка регистрации:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// Обновление аватара
+app.post('/updateAvatar', upload.single('avatar'), async (req, res) => {
     try {
-        if (!req.file) {
-            throw new Error("Файл не был загружен");
-        }
+        console.log('Request body:', req.body); // Логирование тела запроса
+        console.log('Uploaded file:', req.file); // Логирование файла
 
-        console.log("Загружен файл:", req.file);
+        if (!req.file) {
+            return res.status(400).json({ error: 'Файл не был загружен' });
+        }
 
         const { username } = req.body;
         const avatarPath = `/uploads/avatars/${req.file.filename}`;
 
-        const result = await pool.query("UPDATE users SET avatar = $1 WHERE username = $2", [avatarPath, username]);
-
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: "Пользователь не найден" });
+        const user = await User.findOne({ where: { username } });
+        if (!user) {
+            return res.status(404).json({ error: 'Пользователь не найден' });
         }
+
+        user.avatar = avatarPath;
+        await user.save();
 
         res.json({ avatar: avatarPath });
     } catch (error) {
-        console.error("Ошибка при обновлении аватара:", error);
-        res.status(500).json({ error: error.message || "Ошибка обновления аватара" });
+        console.error('Ошибка при обновлении аватара:', error);
+        res.status(500).json({ error: error.message || 'Ошибка обновления аватара' });
     }
 });
 
-// Обслуживание статических файлов из папки uploads
-app.use("/uploads", express.static("uploads"));
+// Получение данных пользователя
+app.get('/user/:username', async (req, res) => {
+  const { username } = req.params;
 
-const fs = require("fs");
-const avatarsDir = "uploads/avatars";
+  try {
+    const user = await User.findOne({ where: { username } });
 
-// Создаем папку для аватаров, если ее нет
-if (!fs.existsSync(avatarsDir)) {
-    fs.mkdirSync(avatarsDir, { recursive: true });
-}
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
 
+    res.json({ username: user.username, avatar: user.avatar });
+  } catch (error) {
+    console.error('Ошибка при получении данных пользователя:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+// Логин пользователя
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Заполните все поля!' });
+  }
+
+  try {
+    const user = await User.findOne({ where: { username } });
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ error: 'Неверный пароль' });
+    }
+
+    // Установите cookie или сессии, если необходимо
+    // Например, для простоты можно установить cookies с флагом HttpOnly
+    res.cookie('username', user.username, { httpOnly: true });
+
+    res.json({ success: true, message: 'Авторизация успешна!' });
+  } catch (error) {
+    console.error('Ошибка авторизации:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+
+// Запуск сервера
+app.listen(port, () => {
+  console.log(`✅ Server is running on http://127.0.0.1:${port}`);
+});

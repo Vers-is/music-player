@@ -75,139 +75,6 @@ document.querySelectorAll('.nav_links').forEach(link => {
   }
 });
 // ///////////////// WINDOW -- USERS //////////////////
-
-
-// function updateProfileIcon(username) {
-//   const profileIcon = document.getElementById("profileIcon");
-//   const avatarSrc = avatars[username] || avatars["default"];
-
-//   profileIcon.style.backgroundImage = `url(${avatarSrc})`;
-//   profileIcon.style.backgroundSize = "cover";
-//   profileIcon.style.backgroundPosition = "center";
-//   profileIcon.style.backgroundRepeat = "no-repeat";
-// }
-
-// document.getElementById("profileIcon").addEventListener("click", () => {
-//   if (loggedInUser) {
-//       const menu = document.getElementById("profileMenu");
-//       menu.style.display = menu.style.display === "block" ? "none" : "block";
-//   } else {
-//       openLoginModal();
-//   }
-// });
-
-// window.addEventListener("click", (e) => {
-//   const menu = document.getElementById("profileMenu");
-//   if (!e.target.closest("#profileIcon") && !e.target.closest("#profileMenu")) {
-//       menu.style.display = "none";
-//   }
-// });
-
-// function logout() {
-// document.getElementById("profileMenu").style.display = "none";
-
-// const confirmLogout = confirm("Вы точно хотите выйти из аккаунта?");
-// if (confirmLogout) {
-//     localStorage.removeItem("loggedInUser"); 
-//     loggedInUser = null; 
-//     isAuthenticated = false;
-
-//     updateProfileIcon("default");
-//     updateProfileName("Гость");
-
-//     favorites = [];
-//     localStorage.removeItem("currentFavorites");
-    
-//     const gridItems = document.querySelectorAll(".grid-item");
-//     gridItems.forEach(item => {
-//         item.innerHTML = "";
-//         item.style.height = "10vh";
-//     });
-
-//     renderFavorites();
-//     updateFavoriteUI();
-
-//     alert("Вы вышли из аккаунта.");
-//     location.reload();
-// }
-// }
-
-// document.getElementById("changeAvatar").addEventListener("change", function(event) {
-//   const file = event.target.files[0];
-//   if (file) {
-//       const reader = new FileReader();
-//       reader.onload = function(e) {
-//           avatars[loggedInUser] = e.target.result;
-//           localStorage.setItem("avatars", JSON.stringify(avatars));
-//           updateProfileIcon(loggedInUser);
-//       };
-//       reader.readAsDataURL(file);
-//   }
-// });
-
-// function openLoginModal() {
-//   document.getElementById("loginModal").style.display = "flex";
-// }
-
-// function closeModal() {
-//   document.getElementById("loginModal").style.display = "none";
-//   document.getElementById("username").value = "";
-//   document.getElementById("password").value = "";
-//   document.getElementById("errorMessage").style.display = "none";
-// }
-
-// document.querySelector(".close-user").addEventListener("click", closeModal);
-
-// function getUsers() {
-//   return JSON.parse(localStorage.getItem("users")) || {};
-// }
-
-// function checkLogin() {
-// const username = document.getElementById("username").value.trim();
-// const password = document.getElementById("password").value.trim();
-
-// let users = getUsers();
-
-// if (users[username] && users[username] === password) {
-//     alert("Добро пожаловать, " + username + "!");
-//     loggedInUser = username;
-//     localStorage.setItem("loggedInUser", username); 
-
-//     updateProfileIcon(username);
-//     updateProfileName(username);
-//     isAuthenticated = true;
-//     closeModal();
-//     location.reload();
-//     loadFavorites();  
-//     renderFavorites(); 
-//     updateFavoriteUI(); 
-
-// } else {
-//     document.getElementById("errorMessage").style.display = "block";
-// }
-// }
-
-
-// function updateProfileName(username) {
-//   const profileName = document.getElementById("profileName");
-//   profileName.textContent = username && getUsers()[username] ? username : "Гость";
-// }
-
-// window.onload = function() {
-//   if (loggedInUser) {
-//       isAuthenticated = true;
-//       updateProfileIcon(loggedInUser);
-//       updateProfileName(loggedInUser);
-
-//       loadFavorites(); 
-//       renderFavorites();
-//       updateFavoriteUI(); 
-//   } else {
-//       isAuthenticated = false;
-//       updateProfileIcon("default");
-//       updateProfileName("Гость");
-//   }
-// };
 document.addEventListener("DOMContentLoaded", async () => {
     const savedUsername = localStorage.getItem("username");
 
@@ -216,6 +83,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    // Получение данных пользователя для инициализации UI
     try {
         const response = await fetch(`http://127.0.0.1:3000/user/${savedUsername}`);
         const data = await response.json();
@@ -274,6 +142,59 @@ function logout() {
         location.reload();
     }
 }
+
+// Обработчик для загрузки нового аватара
+const changeAvatarInput = document.getElementById('changeAvatar');
+changeAvatarInput.addEventListener('change', async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+    formData.append('username', localStorage.getItem('username'));
+
+    try {
+
+    try {
+        const response = await fetch('http://127.0.0.1:3000/updateAvatar', {
+            method: 'POST',
+            body: formData,
+        });
+
+        const data = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(data.error || 'Ошибка при загрузке аватара');
+        }
+        
+        // Rest of your success handling code
+    } catch (error) {
+        console.error('Ошибка при загрузке аватара:', error);
+        // Display the error to the user
+        alert('Не удалось загрузить аватар: ' + error.message);
+    }
+        const data = await response.json();
+        console.log('Аватар успешно обновлен:', data.avatar);
+
+        const avatarIcon = document.getElementById('avatarIcon');
+        avatarIcon.src = data.avatar;
+
+        localStorage.setItem('avatar', data.avatar);
+
+        const savedUsername = localStorage.getItem('username');
+        if (savedUsername) {
+            const userResponse = await fetch(`http://127.0.0.1:3000/user/${savedUsername}`);
+            const userData = await userResponse.json();
+            if (userResponse.ok) {
+                updateProfileUI(userData);
+                localStorage.setItem('username', userData.username);
+            }
+        }
+    } catch (error) {
+        console.error('Ошибка при загрузке аватара:', error);
+    }
+});
+
 // Функции для работы с модальным окном входа
 function openLoginModal() {
     document.getElementById("loginModal").style.display = "flex";
@@ -289,95 +210,42 @@ function closeModal() {
 
 document.querySelector(".close-user").addEventListener("click", closeModal);
 
-
 function checkLogin() {
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
     let errorMessage = document.getElementById("errorMessage");
 
-    fetch("http://127.0.0.1:3000/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, password })
+    console.log('Отправляю запрос на сервер:', { username, password });
+
+    fetch("http://127.0.0.1:3000/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: 'include',
+      body: JSON.stringify({ username, password })
     })
-    .then(response => response.json())
+
+    .then(response => {
+        console.log('Ответ получен, статус:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Данные ответа:', data);
         if (data.success) {
-            // ✅ Сохраняем имя пользователя в localStorage
             localStorage.setItem("username", username);
             window.location.href = "/files/index.html";
         } else {
+            errorMessage.textContent = data.error || "Ошибка входа";
             errorMessage.style.display = "block";
         }
     })
-    .catch(error => console.error("Ошибка входа:", error));
+    .catch(error => {
+        console.error("Детали ошибки:", error);
+        errorMessage.textContent = "Ошибка соединения с сервером";
+        errorMessage.style.display = "block";
+    });
 }
-
-document.getElementById("changeAvatar").addEventListener("change", async function(event) {
-    const file = event.target.files[0];
-    const username = localStorage.getItem("username");
-
-    if (file && username) {
-        const formData = new FormData();
-        formData.append("username", username);
-        formData.append("avatar", file);
-
-        try {
-            const response = await fetch("http://127.0.0.1:3000/updateAvatar", {
-                method: "POST",
-                body: formData
-            });
-
-           if (response.ok) {
-              const data = await response.json();
-              alert("Аватар обновлен!");
-              document.getElementById("avatarIcon").src = data.avatar;
-          } else {
-              const errorData = await response.json();
-              alert(`Ошибка: ${errorData.error || "Ошибка обновления аватара"}`);
-          }
-
-        } catch (error) {
-            console.error("Ошибка при обновлении аватара:", error);
-            alert("Ошибка обновления аватара.");
-        }
-    }
-});
-
-
-document.addEventListener("DOMContentLoaded", async () => {
-    const savedUsername = localStorage.getItem("username");
-    if (!savedUsername) {
-        // Если нет имени, показываем "Гость" и выходим
-        document.getElementById("profileName").textContent = "Гость";
-        return;
-    }
-
-    // Запрос на сервер для получения данных пользователя (если требуется)
-    try {
-        const response = await fetch(`http://127.0.0.1:3000/user/${savedUsername}`);
-        const data = await response.json();
-
-        if (response.ok) {
-            // Показываем имя и аватар (если аватар нужно отображать)
-            document.getElementById("profileName").textContent = data.username;
-            const avatarElement = document.getElementById("avatarIcon");
-            if (avatarElement) {
-                avatarElement.src = data.avatar || "/images/default.jpg";
-            }
-        } else {
-            console.error("Ошибка при получении пользователя:", data.error);
-            document.getElementById("profileName").textContent = "Гость";
-        }
-    } catch (error) {
-        console.error("Ошибка:", error);
-        document.getElementById("profileName").textContent = "Гость";
-    }
-});
-
-
 ///////////////// PLAYER //////////////////
 
 document.addEventListener("DOMContentLoaded", function () {
