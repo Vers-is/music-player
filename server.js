@@ -55,6 +55,7 @@ sequelize.sync({ alter: true })
 
 app.listen(port, () => console.log(`✅ Server running on port ${port}`));
 
+
 // // Получение списка песен
 // app.get('/api/songs', async (req, res) => {
 //   try {

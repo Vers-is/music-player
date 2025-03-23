@@ -1,33 +1,22 @@
-const User = require('../models/UserModel');
-const Token = require('../models/tokenModel');
+const User = require("../models/UserModel"); // Add this import at the top
 
-module.exports = async (req, res, next) => {
-  try {
-    const token = req.cookies.auth_token;
-    
-    if (!token) {
-      return res.status(401).json({ error: 'Требуется авторизация' });
+const authMiddleware = async (req, res, next) => {
+    try {
+        console.log("Сессия при запросе на обновление аватара:", req.session);
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "Не авторизован" });
+        }
+
+        const user = await User.findByPk(req.session.userId);
+        if (!user) {
+            return res.status(401).json({ error: "Пользователь не найден" });
+        }
+
+        req.user = user;
+        next();
+    } catch (error) {
+        res.status(500).json({ error: "Ошибка сервера" });
     }
-    
-    const tokenRecord = await Token.findOne({ 
-      where: { 
-        token,
-        expiresAt: { $gt: new Date() }
-      }
-    });
-    
-    if (!tokenRecord) {
-      return res.status(401).json({ error: 'Недействительный или истекший токен' });
-    }
-    
-    const user = await User.findByPk(tokenRecord.userId);
-    if (!user) {
-      return res.status(401).json({ error: 'Пользователь не найден' });
-    }
-    
-    req.user = user;
-    next();
-  } catch (error) {
-    next(error);
-  }
 };
+
+module.exports = authMiddleware;
