@@ -1,180 +1,368 @@
-const express = require('express');
+const express = require("express");
 const cors = require('cors');
-const bcrypt = require('bcrypt');
-const multer = require('multer');
-const fs = require('fs');
-const path = require('path');
-const sequelize = require('./config/db.config'); // Подключение к БД
-const User = require('./models/UserModel');
+const cookieParser = require("cookie-parser");
+const sequelize = require("./config/db.config");
+const userRoutes = require("./routes/userRoutes");
+const session = require('express-session');
+require('dotenv').config();
 
-const app = express();
+const app = express(); // Инициализация приложения
 const port = process.env.PORT || 3000;
 
-// Обслуживание статических файлов
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Middleware для парсинга JSON
-app.use(express.json());
-
-// Настройка CORS
+// Middleware
 app.use(cors({
-  origin: 'http://127.0.0.1:5502', // ваш фронтенд адрес
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // Разрешаем использовать cookies
+    origin: "http://127.0.0.1:5502", 
+    credentials: true 
 }));
+app.use(express.json());
+app.use(cookieParser());
+
+// Настройка сессий
+app.use(session({
+    secret: '220906',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        httpOnly: true,
+        secure: false, // Это важно, если ваше приложение работает без HTTPS
+        maxAge: 60 * 60 * 1000 // например, срок действия сессии 1 час
+    }
+}));
+
+const fs = require('fs');
+const path = require('path');
+
+// Add this to your server.js
+const avatarDir = path.join(__dirname, 'uploads/avatars');
+if (!fs.existsSync(avatarDir)) {
+    fs.mkdirSync(avatarDir, { recursive: true });
+}
+
+
+app.use("/uploads", express.static("uploads"));
+
+// Роуты
+app.use("/api/users", userRoutes);
 
 // Проверка подключения к БД
 sequelize.authenticate()
-  .then(() => console.log('✅ Database connected successfully'))
-  .catch(err => console.error('❌ Database connection error:', err));
+    .then(() => console.log("✅ Database connected"))
+    .catch(err => console.error("❌ Database connection error:", err));
 
-// Создание таблиц (обновление схемы без удаления данных)
 sequelize.sync({ alter: true })
-  .then(() => console.log('✅ Tables synchronized'))
-  .catch(err => console.error('❌ Error syncing tables:', err));
+    .then(() => console.log("✅ Tables synchronized"))
+    .catch(err => console.error("❌ Error syncing tables:", err));
 
-// Настройка Multer для загрузки аватаров
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/avatars'); // Папка для хранения аватаров
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${req.body.username}-${Date.now()}${path.extname(file.originalname)}`);
-  },
-});
+app.listen(port, () => console.log(`✅ Server running on port ${port}`));
 
-const fileFilter = (req, file, cb) => {
-  const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-  const extname = path.extname(file.originalname).toLowerCase();
-  if (file.mimetype.startsWith('image/') && allowedExtensions.includes(extname)) {
-    cb(null, true);
-  } else {
-    cb(new Error('Файл должен быть изображением с разрешением .jpg, .jpeg, .png или .gif'), false);
-  }
-};
+// // Получение списка песен
+// app.get('/api/songs', async (req, res) => {
+//   try {
+//     if (!sequelize) {
+//       throw new Error('Подключение к базе данных не установлено');
+//     }
+    
+//     const songs = await sequelize.query('SELECT * FROM tracks', {
+//       type: sequelize.QueryTypes.SELECT,
+//     });
 
-const upload = multer({ storage, fileFilter });
+//     if (!songs.length) {
+//       return res.status(404).json({ error: 'Песни не найдены' });
+//     }
 
-// Создаем папку для аватаров, если ее нет
-const avatarsDir = 'uploads/avatars';
-if (!fs.existsSync(avatarsDir)) {
-  fs.mkdirSync(avatarsDir, { recursive: true });
-}
-
-// Регистрация нового пользователя
-app.post('/register', async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Заполните все поля!' });
-  }
-
-  if (password.length < 8) {
-    return res.status(400).json({ error: 'Пароль должен содержать минимум 8 символов!' });
-  }
-
-  try {
-    const existingUser = await User.findOne({ where: { username } });
-    if (existingUser) {
-      return res.status(400).json({ error: 'Пользователь с таким логином уже существует' });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await User.create({
-      username,
-      password: hashedPassword,
-      email: `${username}@example.com`,
-      avatar: '/images/default.jpg',
-      isAdmin: false,
-    });
-
-    console.log('✅ Новый пользователь зарегистрирован:', newUser.dataValues);
-    return res.status(201).json({ message: 'Регистрация успешна!' });
-  } catch (error) {
-    console.error('❌ Ошибка регистрации:', error);
-    res.status(500).json({ error: 'Ошибка сервера' });
-  }
-});
-
-// Обновление аватара
-app.post('/updateAvatar', upload.single('avatar'), async (req, res) => {
-    try {
-        console.log('Request body:', req.body); // Логирование тела запроса
-        console.log('Uploaded file:', req.file); // Логирование файла
-
-        if (!req.file) {
-            return res.status(400).json({ error: 'Файл не был загружен' });
-        }
-
-        const { username } = req.body;
-        const avatarPath = `/uploads/avatars/${req.file.filename}`;
-
-        const user = await User.findOne({ where: { username } });
-        if (!user) {
-            return res.status(404).json({ error: 'Пользователь не найден' });
-        }
-
-        user.avatar = avatarPath;
-        await user.save();
-
-        res.json({ avatar: avatarPath });
-    } catch (error) {
-        console.error('Ошибка при обновлении аватара:', error);
-        res.status(500).json({ error: error.message || 'Ошибка обновления аватара' });
-    }
-});
-
-// Получение данных пользователя
-app.get('/user/:username', async (req, res) => {
-  const { username } = req.params;
-
-  try {
-    const user = await User.findOne({ where: { username } });
-
-    if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
-    }
-
-    res.json({ username: user.username, avatar: user.avatar });
-  } catch (error) {
-    console.error('Ошибка при получении данных пользователя:', error);
-    res.status(500).json({ error: 'Ошибка сервера' });
-  }
-});
-// Логин пользователя
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Заполните все поля!' });
-  }
-
-  try {
-    const user = await User.findOne({ where: { username } });
-    if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(400).json({ error: 'Неверный пароль' });
-    }
-
-    // Установите cookie или сессии, если необходимо
-    // Например, для простоты можно установить cookies с флагом HttpOnly
-    res.cookie('username', user.username, { httpOnly: true });
-
-    res.json({ success: true, message: 'Авторизация успешна!' });
-  } catch (error) {
-    console.error('Ошибка авторизации:', error);
-    res.status(500).json({ error: 'Ошибка сервера' });
-  }
-});
+//     res.json(songs);
+//   } catch (error) {
+//     console.error('Ошибка при получении списка песен:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
 
 
-// Запуск сервера
-app.listen(port, () => {
-  console.log(`✅ Server is running on http://127.0.0.1:${port}`);
-});
+
+// ///////////// CREATE PLAYLIST 
+
+// // Add these imports at the top of your server.js file
+// const Playlist = require('./models/playlistModel');
+
+// const PlaylistSong = require('./models/PlaylistSongModel');
+
+// // Setup multer for playlist cover images
+// const playlistCoverStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'uploads/playlist-covers');
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, `playlist-${Date.now()}${path.extname(file.originalname)}`);
+//   },
+// });
+
+// const playlistCoverUpload = multer({ 
+//   storage: playlistCoverStorage,
+//   fileFilter
+// });
+
+// // Create directory for playlist covers if it doesn't exist
+// const playlistCoversDir = 'uploads/playlist-covers';
+// if (!fs.existsSync(playlistCoversDir)) {
+//   fs.mkdirSync(playlistCoversDir, { recursive: true });
+// }
+
+// // Create a new playlist
+// app.post('/api/playlists', playlistCoverUpload.single('coverImage'), async (req, res) => {
+//   try {
+//     const { name, description, username } = req.body;
+    
+//     if (!name || !username) {
+//       return res.status(400).json({ error: 'Название плейлиста и имя пользователя обязательны' });
+//     }
+
+//     // Find user ID by username
+//     const user = await User.findOne({ where: { username } });
+//     if (!user) {
+//       return res.status(404).json({ error: 'Пользователь не найден' });
+//     }
+
+//     // Get cover image path if uploaded
+//     let coverImagePath = '/images/playlist6.JPG';
+//     if (req.file) {
+//       coverImagePath = `/uploads/playlist-covers/${req.file.filename}`;
+//     }
+
+//     // Create the playlist
+//     const playlist = await Playlist.create({
+//       name,
+//       description,
+//       coverImage: coverImagePath,
+//       userId: user.id
+//     });
+
+//     res.status(201).json({
+//       id: playlist.id,
+//       name: playlist.name,
+//       description: playlist.description,
+//       coverImage: playlist.coverImage
+//     });
+//   } catch (error) {
+//     console.error('Ошибка при создании плейлиста:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
+
+// // Get all playlists for a user
+// app.get('/api/playlists/:username', async (req, res) => {
+//   try {
+//     const { username } = req.params;
+    
+//     // Find user by username
+//     const user = await User.findOne({ where: { username } });
+//     if (!user) {
+//       return res.status(404).json({ error: 'Пользователь не найден' });
+//     }
+    
+//     // Find all playlists for the user
+//     const playlists = await Playlist.findAll({
+//       where: { userId: user.id },
+//       order: [['createdAt', 'DESC']]
+//     });
+    
+//     res.json(playlists);
+//   } catch (error) {
+//     console.error('Ошибка при получении плейлистов:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
+
+// // Get a specific playlist with its songs
+// app.get('/api/playlist/:playlistId', async (req, res) => {
+//   try {
+//     const { playlistId } = req.params;
+    
+//     // Find the playlist
+//     const playlist = await Playlist.findByPk(playlistId);
+//     if (!playlist) {
+//       return res.status(404).json({ error: 'Плейлист не найден' });
+//     }
+    
+//     // Find all songs in the playlist
+//     const songs = await PlaylistSong.findAll({
+//       where: { playlistId },
+//       order: [['position', 'ASC']]
+//     });
+    
+//     res.json({
+//       id: playlist.id,
+//       name: playlist.name,
+//       description: playlist.description,
+//       coverImage: playlist.coverImage,
+//       songs
+//     });
+//   } catch (error) {
+//     console.error('Ошибка при получении плейлиста:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
+
+// // Add a song to a playlist
+// app.post('/api/playlist/:playlistId/songs', async (req, res) => {
+//   try {
+//     const { playlistId } = req.params;
+//     const { songName, songArtist, songSrc, songImage } = req.body;
+    
+//     if (!songName || !songArtist || !songSrc || !songImage) {
+//       return res.status(400).json({ error: 'Все данные о песне обязательны' });
+//     }
+    
+//     // Check if playlist exists
+//     const playlist = await Playlist.findByPk(playlistId);
+//     if (!playlist) {
+//       return res.status(404).json({ error: 'Плейлист не найден' });
+//     }
+    
+//     // Get the highest current position
+//     const lastSong = await PlaylistSong.findOne({
+//       where: { playlistId },
+//       order: [['position', 'DESC']]
+//     });
+    
+//     const position = lastSong ? lastSong.position + 1 : 0;
+    
+//     // Add the song to the playlist
+//     const playlistSong = await PlaylistSong.create({
+//       playlistId,
+//       songName,
+//       songArtist,
+//       songSrc,
+//       songImage,
+//       position
+//     });
+    
+//     res.status(201).json(playlistSong);
+//   } catch (error) {
+//     console.error('Ошибка при добавлении песни в плейлист:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
+
+// // Remove a song from a playlist
+// app.delete('/api/playlist/:playlistId/songs/:songId', async (req, res) => {
+//   try {
+//     const { playlistId, songId } = req.params;
+    
+//     // Find and delete the song
+//     const song = await PlaylistSong.findOne({
+//       where: {
+//         id: songId,
+//         playlistId
+//       }
+//     });
+    
+//     if (!song) {
+//       return res.status(404).json({ error: 'Песня не найдена в плейлисте' });
+//     }
+    
+//     await song.destroy();
+    
+//     // Reorder remaining songs
+//     const remainingSongs = await PlaylistSong.findAll({
+//       where: { playlistId },
+//       order: [['position', 'ASC']]
+//     });
+    
+//     for (let i = 0; i < remainingSongs.length; i++) {
+//       remainingSongs[i].position = i;
+//       await remainingSongs[i].save();
+//     }
+    
+//     res.json({ message: 'Песня удалена из плейлиста' });
+//   } catch (error) {
+//     console.error('Ошибка при удалении песни из плейлиста:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
+
+// // Delete a playlist
+// app.delete('/api/playlist/:playlistId', async (req, res) => {
+//   try {
+//     const { playlistId } = req.params;
+    
+//     // Find and delete the playlist
+//     const playlist = await Playlist.findByPk(playlistId);
+//     if (!playlist) {
+//       return res.status(404).json({ error: 'Плейлист не найден' });
+//     }
+    
+//     // Delete all songs in the playlist
+//     await PlaylistSong.destroy({
+//       where: { playlistId }
+//     });
+    
+//     // Delete the playlist itself
+//     await playlist.destroy();
+    
+//     res.json({ message: 'Плейлист удален' });
+//   } catch (error) {
+//     console.error('Ошибка при удалении плейлиста:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
+
+// // Update playlist order (reorder songs)
+// app.put('/api/playlist/:playlistId/reorder', async (req, res) => {
+//   try {
+//     const { playlistId } = req.params;
+//     const { songOrder } = req.body;
+    
+//     if (!Array.isArray(songOrder)) {
+//       return res.status(400).json({ error: 'Неверный формат порядка песен' });
+//     }
+    
+//     // Update positions for each song
+//     for (const item of songOrder) {
+//       await PlaylistSong.update(
+//         { position: item.position },
+//         { where: { id: item.id, playlistId } }
+//       );
+//     }
+    
+//     // Get updated song list
+//     const songs = await PlaylistSong.findAll({
+//       where: { playlistId },
+//       order: [['position', 'ASC']]
+//     });
+    
+//     res.json(songs);
+//   } catch (error) {
+//     console.error('Ошибка при изменении порядка песен:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
+
+// // Update playlist details
+// app.put('/api/playlist/:playlistId', playlistCoverUpload.single('coverImage'), async (req, res) => {
+//   try {
+//     const { playlistId } = req.params;
+//     const { name, description } = req.body;
+    
+//     // Find the playlist
+//     const playlist = await Playlist.findByPk(playlistId);
+//     if (!playlist) {
+//       return res.status(404).json({ error: 'Плейлист не найден' });
+//     }
+    
+//     // Update fields if provided
+//     if (name) playlist.name = name;
+//     if (description !== undefined) playlist.description = description;
+    
+//     // Update cover image if provided
+//     if (req.file) {
+//       playlist.coverImage = `/uploads/playlist-covers/${req.file.filename}`;
+//     }
+    
+//     await playlist.save();
+    
+//     res.json(playlist);
+//   } catch (error) {
+//     console.error('Ошибка при обновлении плейлиста:', error);
+//     res.status(500).json({ error: 'Ошибка сервера' });
+//   }
+// });
