@@ -1,7 +1,7 @@
 const sequelize = require('./config/db.config'); 
 const User = require("./models/UserModel");
 const Token = require('./models/tokenModel');
-const Track = require('./models/musicModel');
+const Track = require('./models/TrackModel');
 
 async function initializeDatabase() {
   try {

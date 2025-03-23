@@ -74,178 +74,6 @@ document.querySelectorAll('.nav_links').forEach(link => {
       }
   }
 });
-// ///////////////// WINDOW -- USERS //////////////////
-document.addEventListener("DOMContentLoaded", async () => {
-    const savedUsername = localStorage.getItem("username");
-
-    if (!savedUsername) {
-        updateProfileUI(null);
-        return;
-    }
-
-    // Получение данных пользователя для инициализации UI
-    try {
-        const response = await fetch(`http://127.0.0.1:3000/user/${savedUsername}`);
-        const data = await response.json();
-
-        if (response.ok) {
-            updateProfileUI(data);
-        } else {
-            console.error("Ошибка при получении пользователя:", data.error);
-            updateProfileUI(null);
-        }
-    } catch (error) {
-        console.error("Ошибка:", error);
-        updateProfileUI(null);
-    }
-});
-
-// Функция для обновления UI профиля
-function updateProfileUI(user) {
-    const profileName = document.getElementById("profileName");
-    const avatarElement = document.getElementById("avatarIcon");
-
-    if (user?.username) {
-        profileName.textContent = user.username;
-        avatarElement.src = user.avatar || "/images/default.jpg";
-    } else {
-        profileName.textContent = "Гость";
-        avatarElement.src = "/images/default.jpg";
-    }
-}
-
-
-// Обработчик клика по иконке профиля
-document.getElementById("profileIcon").addEventListener("click", () => {
-    if (localStorage.getItem("username")) {
-        const menu = document.getElementById("profileMenu");
-        menu.style.display = menu.style.display === "block" ? "none" : "block";
-    } else {
-        openLoginModal();
-    }
-});
-
-// Закрытие меню при клике вне него
-window.addEventListener("click", (e) => {
-    const menu = document.getElementById("profileMenu");
-    if (!e.target.closest("#profileIcon") && !e.target.closest("#profileMenu")) {
-        menu.style.display = "none";
-    }
-});
-
-// Выход из аккаунта
-function logout() {
-    if (confirm("Вы точно хотите выйти из аккаунта?")) {
-        localStorage.removeItem("username");
-        updateProfileUI(null);
-        alert("Вы вышли из аккаунта.");
-        location.reload();
-    }
-}
-
-// Обработчик для загрузки нового аватара
-const changeAvatarInput = document.getElementById('changeAvatar');
-changeAvatarInput.addEventListener('change', async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append('avatar', file);
-    formData.append('username', localStorage.getItem('username'));
-
-    try {
-
-    try {
-        const response = await fetch('http://127.0.0.1:3000/updateAvatar', {
-            method: 'POST',
-            body: formData,
-        });
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-            throw new Error(data.error || 'Ошибка при загрузке аватара');
-        }
-        
-        // Rest of your success handling code
-    } catch (error) {
-        console.error('Ошибка при загрузке аватара:', error);
-        // Display the error to the user
-        alert('Не удалось загрузить аватар: ' + error.message);
-    }
-        const data = await response.json();
-        console.log('Аватар успешно обновлен:', data.avatar);
-
-        const avatarIcon = document.getElementById('avatarIcon');
-        avatarIcon.src = data.avatar;
-
-        localStorage.setItem('avatar', data.avatar);
-
-        const savedUsername = localStorage.getItem('username');
-        if (savedUsername) {
-            const userResponse = await fetch(`http://127.0.0.1:3000/user/${savedUsername}`);
-            const userData = await userResponse.json();
-            if (userResponse.ok) {
-                updateProfileUI(userData);
-                localStorage.setItem('username', userData.username);
-            }
-        }
-    } catch (error) {
-        console.error('Ошибка при загрузке аватара:', error);
-    }
-});
-
-// Функции для работы с модальным окном входа
-function openLoginModal() {
-    document.getElementById("loginModal").style.display = "flex";
-}
-
-// Функция для закрытия модального окна
-function closeModal() {
-    document.getElementById("loginModal").style.display = "none";
-    document.getElementById("login-username").value = "";
-    document.getElementById("login-password").value = "";
-    document.getElementById("errorMessage").style.display = "none";
-}
-
-document.querySelector(".close-user").addEventListener("click", closeModal);
-
-function checkLogin() {
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
-    let errorMessage = document.getElementById("errorMessage");
-
-    console.log('Отправляю запрос на сервер:', { username, password });
-
-    fetch("http://127.0.0.1:3000/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: 'include',
-      body: JSON.stringify({ username, password })
-    })
-
-    .then(response => {
-        console.log('Ответ получен, статус:', response.status);
-        return response.json();
-    })
-    .then(data => {
-        console.log('Данные ответа:', data);
-        if (data.success) {
-            localStorage.setItem("username", username);
-            window.location.href = "/files/index.html";
-        } else {
-            errorMessage.textContent = data.error || "Ошибка входа";
-            errorMessage.style.display = "block";
-        }
-    })
-    .catch(error => {
-        console.error("Детали ошибки:", error);
-        errorMessage.textContent = "Ошибка соединения с сервером";
-        errorMessage.style.display = "block";
-    });
-}
 ///////////////// PLAYER //////////////////
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -264,135 +92,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const repeatIcon = repeatButton.querySelector("img"); 
   const shuffleIcon = shuffleButton.querySelector("img"); 
 
-  const songs = [
-    {
-    name: "Not Afraid",
-    artist: "Eminem",
-    src: "/songs/Eminem - No Afraid.mp3", 
-    image: "/images/covers/eminem-notafraid.jpeg" 
-  },
-   {
-    name: "Mockingbird",
-    artist: "Eminem",
-    src: "/songs/Eminem - Mockingbird.mp3",
-    image: "/images/covers/eminem-mockinbird.jpeg"
-  },
-  {
-    name: "Smack That",
-    artist: "Eminem ft. Akon",
-    src: "/songs/Eminem ft. Akon - Smack That.mp3",
-    image: "/images/covers/smack-that.webp"
-  },
-  {
-    name: "In Da Club",
-    artist: "50 Cent",
-    src: "/songs/50 Cent - In Da club.mp3",
-    image: "/images/covers/50-indaclub.jpeg"
-  },
-  {
-    name: "Ayo Technology",
-    artist: "50 Cent",
-    src: "/songs/50 Cent - Ayo Technology.mp3",
-    image: "/images/covers/50-ayo.jpeg"
-  },
-  {
-    name: "Blinding Lights",
-    artist: "The Weeknd",
-    src: "/songs/The Weeknd - Blinding Lights.mp3",
-    image: "/images/covers/weeknd-blinding.png"
-  },
-   {
-    name: "Call Out My Name",
-    artist: "The Weeknd",
-    src: "/songs/The Weeknd - Call Out My Name.mp3",
-    image: "/images/covers/weeknd-call.jpeg"
-  },
-  {
-    name: "Die For You",
-    artist: "The Weeknd",
-    src: "/songs/The Weeknd - Die For You (feat. Ariana Grande).mp3",
-    image: "/images/covers/weeknd-starboy.jpeg"
-  },
-   {
-    name: "Heartless",
-    artist: "The Weeknd",
-    src: "/songs/The Weeknd - Heartless.mp3",
-    image: "/images/covers/weeknd-heartless.jpeg"
-  },
-   {
-    name: "One Of The Girls",
-    artist: "The Weeknd",
-    src: "/songs/The Weeknd - One Of The Girls (Feat. JENNIE & Lily Rose Depp).mp3",
-    image: "/images/covers/weeknd-girls.jpeg"
-  },
-  {
-    name: "Интернет-свидание",
-    artist: "Дора",
-    src: "/songs/Дора  - Интернет-свидание.mp3",
-    image: "/images/covers/дора-младшаясестра.png"
-  },
-  {
-    name: "Задолбал меня игнорить",
-    artist: "Дора",
-    src: "/songs/Дора - Задолбал меня игнорить.mp3",
-    image: "/images/covers/дора-младшаясестра.png"
-  },
-  {
-    name: "почему?",
-    artist: "Дора",
-    src: "/songs/Дора - почему.mp3",
-    image: "/images/covers/дора-янекоммерция.png"
-  },
-  {
-    name: "725",
-    artist: "Дора",
-    src: "/songs/Дора - 725.mp3",
-    image: "/images/covers/дора-янекоммерция.png"
-  },
-      {
-    name: "Дора Дура (feat. Chief Keef)",
-    artist: "Дора",
-    src: "/songs/Дорадура.mp3",
-    image: "/images/covers/дорадура.jpeg"
-  },
-     {
-    name: "Walking On A Dream",
-    artist: "Empire Of The Sun",
-    src: "/songs/Empire Of The Sun - Walking On A Dream.mp3",
-    image: "/images/covers/walking.jpeg"
-  },
-    {
-    name: "Get Lucky",
-    artist: "Daft Punk",
-    src: "/songs/Daft Punk - Get Lucky.mp3",
-    image: "/images/covers/getlucky.jpeg"
-  },
-      {
-    name: "Ocean Drive",
-    artist: "Duke Dumont",
-    src: "/songs/Duke Dumont - Ocean Drive.mp3",
-    image: "/images/covers/oceandrive.jpeg"
-  },
-        {
-    name: "Don't Worry",
-    artist: "Madcon feat. Ray Dalton",
-    src: "/songs/Madcon feat. Ray Dalton - Don't Worry.mp3",
-    image: "/images/covers/dontworry.jpeg"
-  },
-        {
-    name: "Girls Like You",
-    artist: "Maroon 5",
-    src: "/songs/Maroon 5 - Girls Like You.mp3",
-    image: "/images/covers/girlslike.png"
-  },
-        {
-    name: "Moves Like Jagger",
-    artist: "Maroon 5",
-    src: "/songs/Maroon 5 - Moves Like Jagger (feat. Christina Aguilera).mp3",
-    image: "/images/covers/moveslike.jpeg"
-  }
-  ]
-
   function changeIconWithTransition(iconElement, newSrc) {
     iconElement.style.opacity = "0";
     setTimeout(() => {
@@ -401,10 +100,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 10);
   }
 
+  let songs = [];
   let isShuffle = false;
   let shuffledPlaylist = [];
   let currentSongIndex = 0;
   let isPlaying = false;
+
+fetch('http://127.0.0.1:3000/api/songs')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`Server responded with status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    console.log('Songs loaded:', data);
+    songs = data;
+
+      // Initialize player after getting songs
+      if (localStorage.getItem("currentSongIndex")) {
+        currentSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
+        let wasPlaying = localStorage.getItem("isPlaying") === "true"; 
+        
+        updateSongInfo(); 
+        
+        if (wasPlaying) {
+          audioPlayer.play()
+            .catch(e => console.error("Error playing audio:", e));
+          playIcon.src = "/images/icons/pause-white.png"; 
+        } else {
+          isPlaying = false; 
+          playIcon.src = "/images/icons/play-white.png"; 
+        }
+      } else {
+        updateSongInfo();
+      }
+    })
+  .catch(error => {
+    console.error('Error fetching songs:', error);
+  });
 
   function shuffleArray(array) {
     let shuffled = array.slice(); 
@@ -428,7 +162,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  function updateSongInfo() {
+function updateSongInfo() {
+    if (songs.length === 0) return; // Guard against empty songs array
+    
     const song = isShuffle ? shuffledPlaylist[currentSongIndex] : songs[currentSongIndex];
     songName.textContent = song.name;
     songArtist.textContent = song.artist;
@@ -440,7 +176,6 @@ document.addEventListener("DOMContentLoaded", function () {
     localStorage.setItem("songName", song.name);
     localStorage.setItem("songArtist", song.artist);
   }
-
   window.addEventListener('storage', (event) => {
     if (event.key === "currentSongIndex" || event.key === "isPlaying" || event.key === "songSrc") {
       const newSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
@@ -475,86 +210,6 @@ document.addEventListener("DOMContentLoaded", function () {
   } else {
     updateSongInfo();
   }
-
-  ///////   CHARTS   ///////
-
-  const charts = [
-    { name: "В темноте", artist: "Noize MC", image: "/images/covers/charts/noize mc - nocomments.png", src: "/songs/charts/Noize MC - В темноте.mp3" },
-    { name: "Душнила", artist: "idst", image: "/images/covers/charts/idst - Душнила.png", src: "/songs/charts/idst - Душнила.mp3" },
-    { name: "Тут нужен я", artist: "Красные звезды", image: "/images/covers/charts/Красные звезды - Свобода2012.png", src: "/songs/charts/Красные Звёзды - Тут нужен я.mp3" },
-    { name: "Семь восьмых", artist: "Ключевое слово", image: "/images/covers/charts/Ключевое слово - 78.png", src: "/songs/charts/Ключевое слово - Семь восьмых.mp3" },
-    { name: "Creep", artist: "Radiohead", image: "/images/covers/charts/radiohead - pablohoney.png", src: "/songs/charts/Radiohead - Creep.mp3" },
-    { name: "Мое море", artist: "Noize MC", image: "/images/covers/charts/noize mc - thegreatesrhits.png", src: "/songs/charts/Noize MC - Моё море.mp3" },
-    { name: "Выдыхай", artist: "Noize MC", image: "/images/covers/charts/noize mc - thegreatesrhits.png", src: "/songs/charts/Noize MC - Выдыхай.mp3" },
-    { name: "И это придёт", artist: "Гр. Полухутенко", image: "/images/covers/charts/полухутенко - ребра.png", src: "/songs/charts/Гр. Полухутенко - И это придёт.mp3" },
-    { name: "Купидоны", artist: "Слава КПСС", image: "/images/covers/charts/слава кппс - лпнл.png", src: "/songs/charts/Слава КПСС - Купидоны.mp3" },
-  ];
- 
-const playIcons = document.querySelectorAll('.grid-item .play-icon');
-
-playIcons.forEach((icon, index) => {
-    icon.addEventListener('click', () => {
-        const song = charts[index];
-        playSongFromCharts(song, index);
-    });
-});
-
-function playSongFromCharts(song, chartIndex) {
-    const currentSongIndex = localStorage.getItem("currentSongIndex");
-    const currentSongSrc = localStorage.getItem("songSrc");
-
-    if (currentSongSrc === song.src && !audioPlayer.paused) {
-        audioPlayer.pause();
-        updateIcons(chartIndex, false);
-        localStorage.setItem("isPlaying", "false");
-        return;
-    }
-
-    songName.textContent = song.name;
-    songArtist.textContent = song.artist;
-    songImage.src = song.image;
-    audioPlayer.src = song.src;
-    audioPlayer.play().then(() => {
-        updateIcons(chartIndex, true);
-        localStorage.setItem("isPlaying", "true");
-    })
-
-    localStorage.setItem("currentSongIndex", chartIndex);
-    localStorage.setItem("songSrc", song.src);
-    localStorage.setItem("songName", song.name);
-    localStorage.setItem("songArtist", song.artist);
-
-    updatePlayIcon(true);
-}
-
-function updateIcons(currentChartIndex, isPlaying) {
-    playIcons.forEach((icon, index) => {
-        if (index === currentChartIndex) {
-            icon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
-        } else {
-            icon.src = "/images/icons/play-white.png";
-        }
-    });
-}
-
-function updatePlayIcon(isPlaying) {
-    playIcon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
-}
-
-audioPlayer.addEventListener("pause", () => {
-    const currentSongIndex = localStorage.getItem("currentSongIndex");
-    updateIcons(currentSongIndex, false);
-    updatePlayIcon(false);
-});
-
-audioPlayer.addEventListener("ended", () => {
-    const currentSongIndex = localStorage.getItem("currentSongIndex");
-    updateIcons(currentSongIndex, false);
-    updatePlayIcon(false);
-    localStorage.setItem("isPlaying", "false"); 
-});
-  
-/////////////////
 
   audioPlayer.addEventListener("play", () => {
     isPlaying = true;
@@ -759,6 +414,84 @@ hidePlayer();
 audioPlayer.addEventListener("ended", () => {
 isPlaying = false; 
 hidePlayer();
+});
+
+  ///////   CHARTS   ///////
+
+  const charts = [
+    { name: "В темноте", artist: "Noize MC", image: "/images/covers/charts/noize mc - nocomments.png", src: "/songs/charts/Noize MC - В темноте.mp3" },
+    { name: "Душнила", artist: "idst", image: "/images/covers/charts/idst - Душнила.png", src: "/songs/charts/idst - Душнила.mp3" },
+    { name: "Тут нужен я", artist: "Красные звезды", image: "/images/covers/charts/Красные звезды - Свобода2012.png", src: "/songs/charts/Красные Звёзды - Тут нужен я.mp3" },
+    { name: "Семь восьмых", artist: "Ключевое слово", image: "/images/covers/charts/Ключевое слово - 78.png", src: "/songs/charts/Ключевое слово - Семь восьмых.mp3" },
+    { name: "Creep", artist: "Radiohead", image: "/images/covers/charts/radiohead - pablohoney.png", src: "/songs/charts/Radiohead - Creep.mp3" },
+    { name: "Мое море", artist: "Noize MC", image: "/images/covers/charts/noize mc - thegreatesrhits.png", src: "/songs/charts/Noize MC - Моё море.mp3" },
+    { name: "Выдыхай", artist: "Noize MC", image: "/images/covers/charts/noize mc - thegreatesrhits.png", src: "/songs/charts/Noize MC - Выдыхай.mp3" },
+    { name: "И это придёт", artist: "Гр. Полухутенко", image: "/images/covers/charts/полухутенко - ребра.png", src: "/songs/charts/Гр. Полухутенко - И это придёт.mp3" },
+    { name: "Купидоны", artist: "Слава КПСС", image: "/images/covers/charts/слава кппс - лпнл.png", src: "/songs/charts/Слава КПСС - Купидоны.mp3" },
+  ];
+ 
+const playIcons = document.querySelectorAll('.grid-item .play-icon');
+
+playIcons.forEach((icon, index) => {
+    icon.addEventListener('click', () => {
+        const song = charts[index];
+        playSongFromCharts(song, index);
+    });
+});
+
+function playSongFromCharts(song, chartIndex) {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    const currentSongSrc = localStorage.getItem("songSrc");
+
+    if (currentSongSrc === song.src && !audioPlayer.paused) {
+        audioPlayer.pause();
+        updateIcons(chartIndex, false);
+        localStorage.setItem("isPlaying", "false");
+        return;
+    }
+
+    songName.textContent = song.name;
+    songArtist.textContent = song.artist;
+    songImage.src = song.image;
+    audioPlayer.src = song.src;
+    audioPlayer.play().then(() => {
+        updateIcons(chartIndex, true);
+        localStorage.setItem("isPlaying", "true");
+    })
+
+    localStorage.setItem("currentSongIndex", chartIndex);
+    localStorage.setItem("songSrc", song.src);
+    localStorage.setItem("songName", song.name);
+    localStorage.setItem("songArtist", song.artist);
+
+    updatePlayIcon(true);
+}
+
+function updateIcons(currentChartIndex, isPlaying) {
+    playIcons.forEach((icon, index) => {
+        if (index === currentChartIndex) {
+            icon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
+        } else {
+            icon.src = "/images/icons/play-white.png";
+        }
+    });
+}
+
+function updatePlayIcon(isPlaying) {
+    playIcon.src = isPlaying ? "/images/icons/pause-white.png" : "/images/icons/play-white.png";
+}
+
+audioPlayer.addEventListener("pause", () => {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    updateIcons(currentSongIndex, false);
+    updatePlayIcon(false);
+});
+
+audioPlayer.addEventListener("ended", () => {
+    const currentSongIndex = localStorage.getItem("currentSongIndex");
+    updateIcons(currentSongIndex, false);
+    updatePlayIcon(false);
+    localStorage.setItem("isPlaying", "false"); 
 });
 
 //////////////// ADD TRACK TO FAVORITE //////////////////
