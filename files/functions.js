@@ -55,10 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-
-///////////////// //////////////// //////////////////
-
-
 ///////////////// //////////////// STYLES FOR ACTIVE PAGE
 
 const currentPage = window.location.pathname.split('/').pop();
@@ -73,347 +69,6 @@ document.querySelectorAll('.nav_links').forEach(link => {
           link.classList.remove('active');
       }
   }
-});
-///////////////// PLAYER //////////////////
-
-document.addEventListener("DOMContentLoaded", function () {
-  const playButton = document.getElementById("play-btn");
-  const prevButton = document.getElementById("prev-btn");
-  const nextButton = document.getElementById("next-btn");
-  const shuffleButton = document.getElementById("shuffle-btn");
-  const repeatButton = document.getElementById("repeat-btn");
-  const audioPlayer = document.getElementById("audio-player");
-  const songName = document.getElementById("song-name");
-  const songArtist = document.getElementById("song-artist");
-  const songImage = document.getElementById("song-image");
-  const volumeControl = document.getElementById("volume-control");
-
-  const playIcon = playButton.querySelector("img"); 
-  const repeatIcon = repeatButton.querySelector("img"); 
-  const shuffleIcon = shuffleButton.querySelector("img"); 
-
-  function changeIconWithTransition(iconElement, newSrc) {
-    iconElement.style.opacity = "0";
-    setTimeout(() => {
-      iconElement.src = newSrc;
-      iconElement.style.opacity = "1";
-    }, 10);
-  }
-
-  let songs = [];
-  let isShuffle = false;
-  let shuffledPlaylist = [];
-  let currentSongIndex = 0;
-  let isPlaying = false;
-
-fetch('http://127.0.0.1:3000/api/songs')
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`Server responded with status: ${response.status}`);
-    }
-    return response.json();
-  })
-  .then(data => {
-    console.log('Songs loaded:', data);
-    songs = data;
-
-      // Initialize player after getting songs
-      if (localStorage.getItem("currentSongIndex")) {
-        currentSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
-        let wasPlaying = localStorage.getItem("isPlaying") === "true"; 
-        
-        updateSongInfo(); 
-        
-        if (wasPlaying) {
-          audioPlayer.play()
-            .catch(e => console.error("Error playing audio:", e));
-          playIcon.src = "/images/icons/pause-white.png"; 
-        } else {
-          isPlaying = false; 
-          playIcon.src = "/images/icons/play-white.png"; 
-        }
-      } else {
-        updateSongInfo();
-      }
-    })
-  .catch(error => {
-    console.error('Error fetching songs:', error);
-  });
-
-  function shuffleArray(array) {
-    let shuffled = array.slice(); 
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }
-
-  shuffleButton.addEventListener("click", () => {
-    isShuffle = !isShuffle;
-    let newSrc = isShuffle ? "/images/icons/shuffle.png" : "/images/icons/no-shuffle-white.png";
-    changeIconWithTransition(shuffleIcon, newSrc);
-
-    if (isShuffle) {
-      shuffledPlaylist = shuffleArray(songs);
-      currentSongIndex = 0;
-    } else {
-      currentSongIndex = songs.findIndex(song => song.src === audioPlayer.src); 
-    }
-  });
-
-function updateSongInfo() {
-    if (songs.length === 0) return; // Guard against empty songs array
-    
-    const song = isShuffle ? shuffledPlaylist[currentSongIndex] : songs[currentSongIndex];
-    songName.textContent = song.name;
-    songArtist.textContent = song.artist;
-    songImage.src = song.image;
-    audioPlayer.src = song.src;
-    
-    localStorage.setItem("currentSongIndex", currentSongIndex);
-    localStorage.setItem("songSrc", song.src);
-    localStorage.setItem("songName", song.name);
-    localStorage.setItem("songArtist", song.artist);
-  }
-  window.addEventListener('storage', (event) => {
-    if (event.key === "currentSongIndex" || event.key === "isPlaying" || event.key === "songSrc") {
-      const newSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
-      const newSongSrc = localStorage.getItem("songSrc");
-      const newIsPlaying = localStorage.getItem("isPlaying") === "true";
-      
-      if (newSongIndex !== currentSongIndex || newSongSrc !== audioPlayer.src) {
-        currentSongIndex = newSongIndex;
-        updateSongInfo();
-        if (newIsPlaying) {
-          audioPlayer.play();
-        } else {
-          audioPlayer.pause();
-        }
-      }
-    }
-  });
-
-  if (localStorage.getItem("currentSongIndex")) {
-    currentSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
-    let wasPlaying = localStorage.getItem("isPlaying") === "true"; 
-
-    updateSongInfo(); 
-
-    if (wasPlaying) {
-      audioPlayer.play();
-      playIcon.src = "/images/icons/pause-white.png"; 
-    } else {
-      isPlaying = false; 
-      playIcon.src = "/images/icons/play-white.png"; 
-    }
-  } else {
-    updateSongInfo();
-  }
-
-  audioPlayer.addEventListener("play", () => {
-    isPlaying = true;
-    localStorage.setItem("isPlaying", "true");
-    showPlayer();
-  });
-
-  audioPlayer.addEventListener("pause", () => {
-    isPlaying = false;
-    localStorage.setItem("isPlaying", "false"); 
-    hidePlayer();
-  });
-
-  nextButton.addEventListener("click", () => {
-    currentSongIndex = (currentSongIndex + 1) % (isShuffle ? shuffledPlaylist.length : songs.length);
-    updateSongInfo();
-    audioPlayer.play();
-    isPlaying = true;
-    playIcon.src = "/images/icons/pause-white.png"; 
-  });
-
-  prevButton.addEventListener("click", () => {
-    currentSongIndex = (currentSongIndex - 1 + (isShuffle ? shuffledPlaylist.length : songs.length)) % (isShuffle ? shuffledPlaylist.length : songs.length);
-    updateSongInfo();
-    audioPlayer.play();
-    isPlaying = true;
-    playIcon.src = "/images/icons/pause-white.png"; 
-  });
-
-  window.addEventListener("beforeunload", () => {
-    localStorage.setItem("currentTime", audioPlayer.currentTime);
-  });
-
-
-  audioPlayer.addEventListener("ended", () => {
-    if (repeatMode === 1) {
-      audioPlayer.currentTime = 0;
-      audioPlayer.play();
-      isPlaying = true;
-    } else if (repeatMode === 2) {
-    } else { nextButton.click(); }
-  });
-
-  playButton.addEventListener("click", () => {
-    if (audioPlayer.paused || audioPlayer.ended) {
-      if (audioPlayer.ended) {
-        audioPlayer.currentTime = 0; 
-      }
-      audioPlayer.play();
-      isPlaying = true; 
-      playIcon.src = "/images/icons/pause-white.png"; 
-      localStorage.setItem("isPlaying", "true");
-      showPlayer(); 
-    } else {
-      audioPlayer.pause();
-      isPlaying = false; 
-      playIcon.src = "/images/icons/play-white.png"; 
-      localStorage.setItem("isPlaying", "false");
-      hidePlayer(); 
-    }
-  });
-
-  let repeatMode = 0; 
-
-  repeatButton.addEventListener("click", () => {
-    repeatMode = (repeatMode + 1) % 3; 
-
-    let newSrc;
-    switch (repeatMode) {
-      case 0: 
-        newSrc = "/images/icons/no-repeat-white.png";
-        audioPlayer.loop = false;
-        break;
-      case 1:
-        newSrc = "/images/icons/repeat-one-white.png";
-        audioPlayer.loop = false; 
-        break;
-      case 2: 
-        newSrc = "/images/icons/repeat-white.png";
-        audioPlayer.loop = true; 
-        break;
-    }
-    changeIconWithTransition(repeatIcon, newSrc);
-  });
-
-  const progressBar = document.getElementById("progress-bar");
-  const currentTimeEl = document.getElementById("current-time");
-  const totalDurationEl = document.getElementById("total-duration");
-
-  function formatTime(time) {
-    const minutes = Math.floor(time / 60);
-    const seconds = Math.floor(time % 60);
-    return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
-  }
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && !audioPlayer.paused) {
-      playIcon.src = "/images/icons/pause-white.png"; 
-    } else if (document.visibilityState !== "visible") {
-      playIcon.src = "/images/icons/play-white.png"; 
-    }
-  });
-  
-  
-  audioPlayer.addEventListener("timeupdate", () => {
-    if (!isNaN(audioPlayer.duration)) {
-      const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-      progressBar.value = progress;
-      currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-    }
-  });
-  if (localStorage.getItem("currentTime")) {
-    audioPlayer.currentTime = parseFloat(localStorage.getItem("currentTime"));
-    progressBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-  }
-  
-  audioPlayer.addEventListener("timeupdate", () => {
-    if (!isNaN(audioPlayer.duration)) {
-      const progress = (audioPlayer.currentTime / audioPlayer.duration) * 100;
-      progressBar.value = progress;
-      currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
-  
-      localStorage.setItem("currentTime", audioPlayer.currentTime);
-    }
-  });
-  
-
-  audioPlayer.addEventListener("loadedmetadata", () => {
-    totalDurationEl.textContent = formatTime(audioPlayer.duration);
-  });
-
-  progressBar.addEventListener("input", () => {
-    audioPlayer.currentTime = (progressBar.value / 100) * audioPlayer.duration;
-  });
-
-  volumeControl.addEventListener("input", () => {
-    audioPlayer.volume = volumeControl.value;
-  });
-if (localStorage.getItem("currentSongIndex")) {
-    currentSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
-    updateSongInfo();
-    if (localStorage.getItem("isPlaying") === "true") {
-      audioPlayer.play();
-      playIcon.src = "/images/icons/pause-white.png"; 
-    }
-  } else {
-    updateSongInfo();
-  }
-});
-
-
-/////////////////// DISPLAY BOTTOM PLAYER
-
-const player = document.querySelector(".player");
-const audioPlayer = document.querySelector("audio"); 
-let isMouseOverPlayer = false;
-let isPlaying = false;
-let timeoutId;
-
-function showPlayer() {
-clearTimeout(timeoutId); 
-player.style.transform = "translateY(0)"; 
-}
-
-function hidePlayer() {
-if (!isPlaying && !isMouseOverPlayer) {
-  timeoutId = setTimeout(() => {
-    player.style.transform = "translateY(100%)";
-  }, 1000);
-}
-}
-
-document.addEventListener("mousemove", (event) => {
-const screenHeight = window.innerHeight;
-const threshold = 90; 
-if (event.clientY > screenHeight - threshold) {
-  showPlayer();
-} else if (!isPlaying) {
-  hidePlayer();
-}
-});
-
-player.addEventListener("mouseenter", () => {
-isMouseOverPlayer = true;
-showPlayer(); 
-});
-
-player.addEventListener("mouseleave", () => {
-isMouseOverPlayer = false; 
-hidePlayer(); 
-});
-
-audioPlayer.addEventListener("play", () => {
-isPlaying = true;
-showPlayer(); 
-});
-
-audioPlayer.addEventListener("pause", () => {
-isPlaying = false; 
-hidePlayer(); 
-});
-
-audioPlayer.addEventListener("ended", () => {
-isPlaying = false; 
-hidePlayer();
 });
 
   ///////   CHARTS   ///////
@@ -967,14 +622,14 @@ const artists = {
         songs: [
             { name: "Rap God", image: "/images/covers/rapgod.jpeg", src: "/songs/Eminem - Rap God.mp3" },
             { name: "Love The Way You Lie", image: "/images/covers/lovetheway.jpeg", src: "/songs/Rihanna Feat. Eminem - Love The Way You Lie.mp3"},
-            { name: "Not Afraid", image: "/images/covers/eminem-notafraid.jpeg", src: "/songs/Eminem - No Afraid.mp3" }
+            { name: "Not Afraid", image: "/images/covers/eminem-notafraid.jpeg", src: "/songs/Eminem---No-Afraid.mp3" }
         ],
       },
     "The Weeknd": {
         image: "/images/artists/theweeknd.webp",
         songs: [
             { name: "Starboy", image: "/images/covers/weeknd-starboy.jpeg", src: "/songs/The Weeknd feat. Daft Punk - Starboy.mp3" },
-            { name: "Blinding Lights", image: "/images/covers/weeknd-blinding.png", src: "/songs/The Weeknd - Blinding Lights.mp3" },
+            { name: "Blinding Lights", image: "/images/covers/weeknd-blinding.png", src: "/songs/The-Weeknd---Blinding-Lights.mp3" },
             { name: "Pray For Me", image: "/images/covers/Pray-for-Me.jpg.webp", src: "/songs/The Weeknd & Kendrick Lamar - Pray For Me.mp3" }
         ]
     },
@@ -983,13 +638,13 @@ const artists = {
         songs: [
            { name: "Втюрилась", image: "/images/covers/дора-втюрилась.jpeg", src: "/songs/Дора - Втюрилась.mp3" },
             { name: "Дорадура", image: "/images/covers/дорадура.jpeg", src: "/songs/Дора - Дорадура.mp3" },
-            { name: "Интернет-свидание", image: "/images/covers/дора-младшаясестра.png", src: "/songs/Дора - Интернет-свидание.mp3" }
+            { name: "Интернет-свидание", image: "/images/covers/дора-младшаясестра.png", src: "/songs/Дора----Интернет-свидание.mp3" }
         ]
     },
          "50 Cent": {
         image: "/images/artists/50Cent.jpeg",
         songs: [
-           { name: "In Da Club", image: "/images/covers/50-indaclub.jpeg", src: "/songs/50 Cent - In Da Club.mp3" },
+           { name: "In Da Club", image: "/images/covers/50-indaclub.jpeg", src: "/songs/50-Cent---In-Da-Club.mp3" },
             { name: "Candy Shop", image: "/images/covers/candyshop.jpeg", src: "/songs/50 Cent - Candy Shop (Feat. Olivia).mp3" },
             { name: "Just A Lil Bit", image: "/images/covers/justalil.jpeg", src: "/songs/50 Cent - Just A Lil Bit.mp3" }
         ]
@@ -1164,8 +819,8 @@ const albums = {
             { name: "Without Me", artist: "Eminem", image: "/images/artists/eminem-album.jpeg", src: "/songs/Without Me (Sefon.Pro).mp3" },
             { name: "Sing For The Moment", artist: "Eminem", image: "/images/covers/sing-for-the-moment.jpeg", src: "/songs/Sing For The Moment (Sefon.Pro).mp3" },
             { name: "The Real Slim Shady", artist: "Eminem", image: "/images/artists/eminem-album.jpeg", src: "/songs/The Real Slim Shady (Sefon.me).mp3" },
-            { name: "Smack That", artist: "Eminem", image: "/images/covers/smack-that.webp", src: "/songs/Eminem ft. Akon - Smack That.mp3" },
-            { name: "Not Afraid", artist: "Eminem", image: "/images/covers/eminem-notafraid.jpeg", src: "/songs/Eminem - No Afraid.mp3" },
+            { name: "Smack That", artist: "Eminem", image: "/images/covers/smack-that.webp", src: "/songs/Eminem-ft.-Akon---Smack-That.mp3" },
+            { name: "Not Afraid", artist: "Eminem", image: "/images/covers/eminem-notafraid.jpeg", src: "/songs/Eminem---No-Afraid.mp3" },
             { name: "Superman", artist: "Eminem", image: "/images/artists/eminem-album.jpeg", src: "/songs/Eminem - Superman.mp3" }, 
         ]
     },
@@ -1175,7 +830,7 @@ const albums = {
         songs: [
             { name: "Starboy", artist: "The Weeknd", image: "/images/covers/weeknd-starboy.jpeg", src: "/songs/The Weeknd feat. Daft Punk - Starboy.mp3" },
             { name: "Reminder", artist: "The Weeknd", image: "/images/covers/reminder.jpeg", src: "/songs/Reminder (Sefon.me).mp3" },
-            { name: "Die For You",artist: "The Weeknd", src: "/songs/The Weeknd - Die For You (feat. Ariana Grande).mp3",
+            { name: "Die For You",artist: "The Weeknd", src: "/songs/The-Weeknd---Die-For-You-(feat.-Ariana-Grande).mp3",
             image: "/images/covers/dieforyou.jpeg"  },
             { name: "Stargirl Interlude", artist: "The Weeknd", image: "/images/covers/stargirl.png", src: "/songs/The Weeknd feat. Lana Del Rey - Stargirl (Interlude).mp3" },
             { name: "I Feel It Coming", artist: "The Weeknd", image: "/images/covers/ifeel.png", src: "/songs/The Weeknd - I Feel It Coming.mp3" },
@@ -1590,4 +1245,3 @@ function setMood(moodKey) {
 
 });
 
-// localStorage.clear();

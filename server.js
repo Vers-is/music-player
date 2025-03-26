@@ -87,13 +87,6 @@ sequelize.authenticate()
       console.log(`✅ Server running on port ${port}`);
       console.log(`Serving from: ${__dirname}`);
       
-      // Проверка критических файлов
-      const criticalFiles = [
-        'player.js',
-        path.join('public', 'songs', 'Eminem---No-Afraid.mp3'),
-        path.join('public', 'images', 'covers', 'eminem-notafraid.jpeg')
-      ];
-      
       criticalFiles.forEach(file => {
         const fullPath = path.join(__dirname, file);
         console.log(`Checking ${file}:`, fs.existsSync(fullPath) ? '✅ Found' : '❌ Missing');

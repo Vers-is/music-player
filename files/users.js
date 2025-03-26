@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         updateProfileUI(null);
     }
 });
+
 function openLoginModal() {
     const modal = document.getElementById("loginModal");
     modal.style.display = "flex"; // Или "block", в зависимости от ваших стилей
@@ -25,6 +26,7 @@ document.getElementById("profileIcon").addEventListener("click", () => {
         openLoginModal(); // Убедитесь, что эта строка есть
     }
 });
+
 function closeModal() {
     const modal = document.getElementById("loginModal");
     modal.style.display = "none";
