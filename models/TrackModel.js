@@ -1,30 +1,49 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db.config');
 
-const Track = sequelize.define('Track', {
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  artist: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  album: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  genre: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  filePath: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-}, {
-  tableName: 'tracks',
-  timestamps: true,
-});
+module.exports = (sequelize) => {
+  const Track = sequelize.define('Track', {
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
+    artist: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true
+      }
+    },
+    src: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        is: /^\/songs\/.+\.mp3$/i
+      }
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        is: /^\/images\/.+\.(jpe?g|png|webp)$/i
+      }
+    }
+  }, {
+    tableName: 'tracks',
+    timestamps: false,
+    indexes: [
+      {
+        fields: ['name']
+      },
+      {
+        fields: ['artist']
+      }
+    ]
+  });
 
-module.exports = Track;
+  return Track;
+};
