@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const cookieParser = require("cookie-parser");
+const session = require("express-session"); // ✅ Добавляем express-session
 const sequelize = require("./config/db.config");
 require('dotenv').config();
 
@@ -22,6 +23,18 @@ app.use(cors({
 
 app.use(express.json());
 app.use(cookieParser());
+
+// ✅ Добавляем поддержку сессий
+app.use(session({
+  secret: process.env.SESSION_SECRET || "supersecretkey",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false, // true, если используете HTTPS
+    sameSite: "Lax"
+  }
+}));
 
 // Добавление модели Track в запросы
 app.use((req, res, next) => {
@@ -70,9 +83,9 @@ app.get('/player.js', (req, res) => {
   });
 });
 
-// Импорт и подключение роутов (без дублирования)
-const trackRoutes = require("./routes/trackRoutes");
-const userRoutes = require("./routes/userRoutes");
+// Импорт и подключение роутов (передаем sequelize)
+const trackRoutes = require("./routes/trackRoutes")(sequelize); // Передаём sequelize
+const userRoutes = require("./routes/userRoutes")(sequelize);
 app.use("/api/tracks", trackRoutes);
 app.use("/api/users", userRoutes);
 
@@ -86,11 +99,6 @@ sequelize.authenticate()
     app.listen(port, () => {
       console.log(`✅ Server running on port ${port}`);
       console.log(`Serving from: ${__dirname}`);
-      
-      criticalFiles.forEach(file => {
-        const fullPath = path.join(__dirname, file);
-        console.log(`Checking ${file}:`, fs.existsSync(fullPath) ? '✅ Found' : '❌ Missing');
-      });
     });
   })
   .catch(err => {

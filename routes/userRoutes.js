@@ -15,13 +15,12 @@ const upload = multer({ storage });
 // Роуты
 router.get("/:username", userController.getUserData);
 router.post("/register", userController.register);
-// userRoutes.js
 router.post("/login", userController.login);
-router.post("/logout", userController.logout); // Добавлен маршрут для выхода
+router.post("/logout", userController.logout);
 router.post("/updateAvatar", authMiddleware, upload.single("avatar"), userController.updateAvatar);
-router.get("/current", authMiddleware, userController.getUserData); // Получение данных текущего пользователя
+router.get("/current", authMiddleware, userController.getUserData); 
 
-// In your routes
+// Проверка сессии
 router.get("/session-test", (req, res) => {
     console.log("Current session:", req.session);
     res.json({ 
