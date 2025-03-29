@@ -382,235 +382,305 @@ function updateBottomPlayerUI(song) {
 
 //////////////// HISTORY SECTION //////////////////
 
-let history = [];
-
-function getCurrentUser() {
-    return localStorage.getItem("loggedInUser");
+async function fetchUserHistory(userId) {
+  try {
+    const response = await fetch(`/api/history?userId=${userId}`);
+    const history = await response.json();
+    // Render history in your UI
+  } catch (error) {
+    console.error('Error fetching history:', error);
+  }
 }
 
-function getCurrentSong() {
-    const songNameElement = document.getElementById("song-name");
-    const songArtistElement = document.getElementById("song-artist");
-    const songImageElement = document.getElementById("song-image");
-
-    return {
-        name: songNameElement?.textContent || "",
-        artist: songArtistElement?.textContent || "",
-        image: songImageElement?.src || "",
-        src: audioPlayer.src || "" // Добавляем источник аудиофайла
-    };
+async function fetchMostPlayedTracks(userId) {
+  try {
+    const response = await fetch(`/api/history/most-played?userId=${userId}`);
+    const mostPlayedTracks = await response.json();
+    // Render most played tracks in your UI
+  } catch (error) {
+    console.error('Error fetching most played tracks:', error);
+  }
 }
 
-function loadHistory() {
-    loggedInUser = getCurrentUser(); 
-    if (!loggedInUser) {
-        history = [];
-        return;
-    }
-    const storedHistory = localStorage.getItem(`history_${loggedInUser}`);
-    history = storedHistory ? JSON.parse(storedHistory) : [];
+// Добавить эти функции
+function getCurrentUserId() {
+  return localStorage.getItem('userId') || 
+         document.cookie.match(/userId=([^;]+)/)?.[1];
 }
 
-function saveHistory() {
-    if (!loggedInUser) return;
-    localStorage.setItem(`history_${loggedInUser}`, JSON.stringify(history));
-}
-
-function isCurrentSongHistory() {
-    const currentSong = getCurrentSong();
-    if (!currentSong.name || !currentSong.artist) return false;
-    return history.some(song => song.name === currentSong.name && song.artist === currentSong.artist);
-}
-
-function toggleHistory() {
-    loggedInUser = getCurrentUser(); 
-    if (!loggedInUser) return;
-
-    const currentSong = getCurrentSong();
-    if (!currentSong.name || !currentSong.artist) return;
-
-    const index = history.findIndex(song => song.name === currentSong.name && song.artist === currentSong.artist);
-    if (index !== -1) {
-        history.splice(index, 1);
-    } else {
-        history.push(currentSong);
-    }
-
-    saveHistory();
-    renderHistory();
-}
-function renderHistory() {
-    const historyContainer = document.querySelector(".history-container");
-    if (!historyContainer) return;
-
-    historyContainer.innerHTML = ""; 
-    const maxSlots = 9;
-    const displayedHistory = history.slice(0, maxSlots); 
-
-    displayedHistory.forEach((song, index) => {
-        const gridItem = document.createElement("div");
-        gridItem.classList.add("grid-item");
-
-        gridItem.innerHTML = `
-            <img src="${song.image}" alt="artist" class="track-artist-image">
-            <div class="item-info-cover">
-                <div class="track-info track-name-history">${song.name}</div>
-                <div class="track-info track-artist track-artist-history">${song.artist}</div>
-            </div>
-            <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon" data-index="${index}">
-        `;
-
-        // Добавляем обработчик события для кнопки воспроизведения
-        const playIcon = gridItem.querySelector(".play-icon");
-        playIcon.addEventListener("click", (event) => {
-            event.stopPropagation(); // Предотвращаем всплытие события
-            const index = parseInt(playIcon.getAttribute("data-index"));
-            if (!isNaN(index) && history[index]) {
-                playSongFromHistory(index);
-            }
-        });
-
-        historyContainer.appendChild(gridItem);
+async function loadUserHistory() {
+  try {
+    const userId = getCurrentUserId();
+    if (!userId) return;
+    
+    const response = await fetch(`/api/history?userId=${userId}`);
+    const history = await response.json();
+    
+    const container = document.querySelector('.history-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    history.forEach(item => {
+      const track = item.Track;
+      const itemHTML = `
+        <div class="grid-item" data-track-id="${track.id}">
+          <img src="${track.image || '/images/icons/atrist-prple-DEF.png'}" 
+               alt="${track.artist}" class="track-artist-image">
+          <div class="item-info-cover">
+            <div class="track-info track-name-history">${track.name}</div>
+            <div class="track-info track-artist track-artist-history">${track.artist}</div>
+          </div>
+          <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon">
+        </div>
+      `;
+      container.insertAdjacentHTML('beforeend', itemHTML);
     });
 
-    // Добавляем пустые слоты, если песен меньше maxSlots
-    for (let i = displayedHistory.length; i < maxSlots; i++) {
-        const gridItem = document.createElement("div");
-        gridItem.classList.add("grid-item");
-
-        gridItem.innerHTML = `
-            <div class="empty-slot" style="opacity: 0.1;">
-                <img src="/" class="track-artist-image" style="visibility: hidden;">
-                <div class="item-info-cover">
-                    <div class="track-info track-name-history"></div>
-                    <div class="track-info track-artist track-artist-history"></div>
-                </div>
-            </div>
-        `;
-
-        historyContainer.appendChild(gridItem);
-    }
-}
-audioPlayer.addEventListener("play", () => {
-    loggedInUser = getCurrentUser();
-    if (!loggedInUser) return;
-
-    const currentSong = getCurrentSong();
-    if (!currentSong.name || !currentSong.artist) return;
-
-    const songIndex = history.findIndex(song => 
-        song.name === currentSong.name && song.artist === currentSong.artist
-    );
-
-    if (songIndex !== -1) {
-        history.splice(songIndex, 1);
-    }
-
-    history.unshift(currentSong);
-
-    if (history.length > 9) {
-        history.pop();
-    }
-
-    saveHistory();
-    renderHistory();
-});
-
-window.addEventListener("load", function() {
-    loggedInUser = localStorage.getItem("loggedInUser");
-    console.log("Logged in user on load:", loggedInUser);
-
-    if (loggedInUser) {
-        updateProfileIcon(loggedInUser);
-        updateProfileName(loggedInUser);
-    } else {
-        updateProfileIcon("default");
-        updateProfileName("Гость");
-    }
-
-    loadHistory();
-    renderHistory();
-
-    loadFavorites();
-    renderFavorites();
-});
-
-window.onload = function() {
-    loggedInUser = getCurrentUser();
-    loadHistory();
-    renderHistory();
-};
-function playSongFromHistory(index) {
-    const song = history[index];
-    if (!song || !audioPlayer) return;
-
-    if (!song.src) {
-        console.error("Нет источника аудио для этой песни:", song);
-        return;
-    }
-
-    const isCurrentlyPlaying = !audioPlayer.paused && audioPlayer.src === song.src;
-
-    if (isCurrentlyPlaying) {
-        audioPlayer.pause();
-        updatePlayPauseButton(false);
-        updateHistoryIcons(-1); // Обновляем иконки, убирая активную
-        localStorage.setItem("isPlaying", "false");
-        return;
-    }
-
-    // Обновляем нижний плеер
-    document.getElementById("song-name").textContent = song.name;
-    document.getElementById("song-artist").textContent = song.artist;
-    document.getElementById("song-image").src = song.image;
-    audioPlayer.src = song.src;
-
-    audioPlayer.play().then(() => {
-        updatePlayPauseButton(true);
-        updateHistoryIcons(index); // Обновляем иконку в истории
-        localStorage.setItem("isPlaying", "true");
-    }).catch((error) => {
-        console.error("Ошибка воспроизведения:", error);
+    // Добавить обработчики кликов для элементов истории
+    container.querySelectorAll('.grid-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const trackId = this.getAttribute('data-track-id');
+        playTrackById(trackId);
+      });
     });
-
-    localStorage.setItem("currentSongIndex", index);
-    localStorage.setItem("songSrc", song.src);
+  } catch (error) {
+    console.error('Ошибка загрузки истории:', error);
+  }
 }
-function updateHistoryIcons() {
-    const playIcons = document.querySelectorAll(".play-icon");
 
-    playIcons.forEach((icon, index) => {
-        if (index === 0) { // Только первая песня в истории получает иконку "пауза"
-            icon.src = "/images/icons/pause-white.png";
-        } else {
-            icon.src = "/images/icons/play-white.png";
-        }
-    });
-}
-function updatePlayPauseButton(isPlaying) {
-    const playPauseBtn = document.getElementById("play-pause-btn");
-    if (playPauseBtn) {
-        playPauseBtn.src = isPlaying 
-            ? "/images/icons/pause-white.png" 
-            : "/images/icons/play-white.png";
-    }
-}
-audioPlayer.addEventListener("play", () => {
-    updatePlayPauseButton(true); // Обновляем иконку плей/пауза в нижнем плеере
-    localStorage.setItem("isPlaying", "true");
-});
+// Вызывать при загрузке страницы и после входа пользователя
+document.addEventListener('DOMContentLoaded', loadUserHistory);
 
-audioPlayer.addEventListener("pause", () => {
-    updatePlayPauseButton(false);
-    updateHistoryIcons(-1); // Сбрасываем иконки в истории
-    localStorage.setItem("isPlaying", "false");
-});
+// let history = [];
 
-audioPlayer.addEventListener("ended", () => {
-    updatePlayPauseButton(false);
-    updateHistoryIcons(-1); // Сбрасываем иконки в истории
-    localStorage.setItem("isPlaying", "false");
-});
+// function getCurrentUser() {
+//     return localStorage.getItem("loggedInUser");
+// }
+
+// function getCurrentSong() {
+//     const songNameElement = document.getElementById("song-name");
+//     const songArtistElement = document.getElementById("song-artist");
+//     const songImageElement = document.getElementById("song-image");
+
+//     return {
+//         name: songNameElement?.textContent || "",
+//         artist: songArtistElement?.textContent || "",
+//         image: songImageElement?.src || "",
+//         src: audioPlayer.src || "" // Добавляем источник аудиофайла
+//     };
+// }
+
+// function loadHistory() {
+//     loggedInUser = getCurrentUser(); 
+//     if (!loggedInUser) {
+//         history = [];
+//         return;
+//     }
+//     const storedHistory = localStorage.getItem(`history_${loggedInUser}`);
+//     history = storedHistory ? JSON.parse(storedHistory) : [];
+// }
+
+// function saveHistory() {
+//     if (!loggedInUser) return;
+//     localStorage.setItem(`history_${loggedInUser}`, JSON.stringify(history));
+// }
+
+// function isCurrentSongHistory() {
+//     const currentSong = getCurrentSong();
+//     if (!currentSong.name || !currentSong.artist) return false;
+//     return history.some(song => song.name === currentSong.name && song.artist === currentSong.artist);
+// }
+
+// function toggleHistory() {
+//     loggedInUser = getCurrentUser(); 
+//     if (!loggedInUser) return;
+
+//     const currentSong = getCurrentSong();
+//     if (!currentSong.name || !currentSong.artist) return;
+
+//     const index = history.findIndex(song => song.name === currentSong.name && song.artist === currentSong.artist);
+//     if (index !== -1) {
+//         history.splice(index, 1);
+//     } else {
+//         history.push(currentSong);
+//     }
+
+//     saveHistory();
+//     renderHistory();
+// }
+// function renderHistory() {
+//     const historyContainer = document.querySelector(".history-container");
+//     if (!historyContainer) return;
+
+//     historyContainer.innerHTML = ""; 
+//     const maxSlots = 9;
+//     const displayedHistory = history.slice(0, maxSlots); 
+
+//     displayedHistory.forEach((song, index) => {
+//         const gridItem = document.createElement("div");
+//         gridItem.classList.add("grid-item");
+
+//         gridItem.innerHTML = `
+//             <img src="${song.image}" alt="artist" class="track-artist-image">
+//             <div class="item-info-cover">
+//                 <div class="track-info track-name-history">${song.name}</div>
+//                 <div class="track-info track-artist track-artist-history">${song.artist}</div>
+//             </div>
+//             <img src="/images/icons/play-white.png" alt="play-icon" class="play-icon" data-index="${index}">
+//         `;
+
+//         // Добавляем обработчик события для кнопки воспроизведения
+//         const playIcon = gridItem.querySelector(".play-icon");
+//         playIcon.addEventListener("click", (event) => {
+//             event.stopPropagation(); // Предотвращаем всплытие события
+//             const index = parseInt(playIcon.getAttribute("data-index"));
+//             if (!isNaN(index) && history[index]) {
+//                 playSongFromHistory(index);
+//             }
+//         });
+
+//         historyContainer.appendChild(gridItem);
+//     });
+
+//     // Добавляем пустые слоты, если песен меньше maxSlots
+//     for (let i = displayedHistory.length; i < maxSlots; i++) {
+//         const gridItem = document.createElement("div");
+//         gridItem.classList.add("grid-item");
+
+//         gridItem.innerHTML = `
+//             <div class="empty-slot" style="opacity: 0.1;">
+//                 <img src="/" class="track-artist-image" style="visibility: hidden;">
+//                 <div class="item-info-cover">
+//                     <div class="track-info track-name-history"></div>
+//                     <div class="track-info track-artist track-artist-history"></div>
+//                 </div>
+//             </div>
+//         `;
+
+//         historyContainer.appendChild(gridItem);
+//     }
+// }
+// audioPlayer.addEventListener("play", () => {
+//     loggedInUser = getCurrentUser();
+//     if (!loggedInUser) return;
+
+//     const currentSong = getCurrentSong();
+//     if (!currentSong.name || !currentSong.artist) return;
+
+//     const songIndex = history.findIndex(song => 
+//         song.name === currentSong.name && song.artist === currentSong.artist
+//     );
+
+//     if (songIndex !== -1) {
+//         history.splice(songIndex, 1);
+//     }
+
+//     history.unshift(currentSong);
+
+//     if (history.length > 9) {
+//         history.pop();
+//     }
+
+//     saveHistory();
+//     renderHistory();
+// });
+
+// window.addEventListener("load", function() {
+//     loggedInUser = localStorage.getItem("loggedInUser");
+//     console.log("Logged in user on load:", loggedInUser);
+
+//     if (loggedInUser) {
+//         updateProfileIcon(loggedInUser);
+//         updateProfileName(loggedInUser);
+//     } else {
+//         updateProfileIcon("default");
+//         updateProfileName("Гость");
+//     }
+
+//     loadHistory();
+//     renderHistory();
+
+//     loadFavorites();
+//     renderFavorites();
+// });
+
+// window.onload = function() {
+//     loggedInUser = getCurrentUser();
+//     loadHistory();
+//     renderHistory();
+// };
+// function playSongFromHistory(index) {
+//     const song = history[index];
+//     if (!song || !audioPlayer) return;
+
+//     if (!song.src) {
+//         console.error("Нет источника аудио для этой песни:", song);
+//         return;
+//     }
+
+//     const isCurrentlyPlaying = !audioPlayer.paused && audioPlayer.src === song.src;
+
+//     if (isCurrentlyPlaying) {
+//         audioPlayer.pause();
+//         updatePlayPauseButton(false);
+//         updateHistoryIcons(-1); // Обновляем иконки, убирая активную
+//         localStorage.setItem("isPlaying", "false");
+//         return;
+//     }
+
+//     // Обновляем нижний плеер
+//     document.getElementById("song-name").textContent = song.name;
+//     document.getElementById("song-artist").textContent = song.artist;
+//     document.getElementById("song-image").src = song.image;
+//     audioPlayer.src = song.src;
+
+//     audioPlayer.play().then(() => {
+//         updatePlayPauseButton(true);
+//         updateHistoryIcons(index); // Обновляем иконку в истории
+//         localStorage.setItem("isPlaying", "true");
+//     }).catch((error) => {
+//         console.error("Ошибка воспроизведения:", error);
+//     });
+
+//     localStorage.setItem("currentSongIndex", index);
+//     localStorage.setItem("songSrc", song.src);
+// }
+// function updateHistoryIcons() {
+//     const playIcons = document.querySelectorAll(".play-icon");
+
+//     playIcons.forEach((icon, index) => {
+//         if (index === 0) { // Только первая песня в истории получает иконку "пауза"
+//             icon.src = "/images/icons/pause-white.png";
+//         } else {
+//             icon.src = "/images/icons/play-white.png";
+//         }
+//     });
+// }
+// function updatePlayPauseButton(isPlaying) {
+//     const playPauseBtn = document.getElementById("play-pause-btn");
+//     if (playPauseBtn) {
+//         playPauseBtn.src = isPlaying 
+//             ? "/images/icons/pause-white.png" 
+//             : "/images/icons/play-white.png";
+//     }
+// }
+// audioPlayer.addEventListener("play", () => {
+//     updatePlayPauseButton(true); // Обновляем иконку плей/пауза в нижнем плеере
+//     localStorage.setItem("isPlaying", "true");
+// });
+
+// audioPlayer.addEventListener("pause", () => {
+//     updatePlayPauseButton(false);
+//     updateHistoryIcons(-1); // Сбрасываем иконки в истории
+//     localStorage.setItem("isPlaying", "false");
+// });
+
+// audioPlayer.addEventListener("ended", () => {
+//     updatePlayPauseButton(false);
+//     updateHistoryIcons(-1); // Сбрасываем иконки в истории
+//     localStorage.setItem("isPlaying", "false");
+// });
 
 
 

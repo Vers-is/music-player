@@ -85,7 +85,10 @@ app.get('/player.js', (req, res) => {
 
 // Импорт и подключение роутов (передаем sequelize)
 const trackRoutes = require("./routes/trackRoutes")(sequelize); // Передаём sequelize
-const userRoutes = require("./routes/userRoutes")(sequelize);
+const userRoutes = require("./routes/userRoutes")
+const historyRoutes = require("./routes/historyRoutes")(sequelize);
+
+app.use("/api/history", historyRoutes);
 app.use("/api/tracks", trackRoutes);
 app.use("/api/users", userRoutes);
 

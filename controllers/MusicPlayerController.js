@@ -1,15 +1,45 @@
 class MusicPlayerController {
-  constructor(model, view) {
+  constructor(model, view, userId) {
     this.model = model;
     this.view = view;
     this.isMouseOverPlayer = false;
     this.timeoutId = null;
     this.init();
+    this.userId = userId; 
   }
 
   init() {
     this.bindEvents();
   }
+
+async addTrackToHistory(trackId) {
+  try {
+    if (!this.userId) {
+      console.warn('No user ID provided, skipping history tracking');
+      return;
+    }
+
+    console.log(`Sending track to history: ${trackId}`);
+
+    const response = await fetch('/api/history/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userId: this.userId,
+        trackId: trackId
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Failed to add track to history:', errorData);
+    }
+  } catch (error) {
+    console.error('Error adding track to history:', error);
+  }
+}
 
   bindEvents() {
     this.view.bindPlayButton(() => this.handlePlayButton());
@@ -66,33 +96,28 @@ class MusicPlayerController {
     });
   }
 
-  handlePlayButton() {
+handlePlayButton() {
     if (this.view.audio.paused || this.view.audio.ended) {
-      if (this.view.audio.ended) {
-        this.view.audio.currentTime = 0;
-      }
-      this.view.audio.play().catch(e => console.error("Error playing audio:", e));
-      this.model.isPlaying = true;
-      this.view.updatePlayIcon(true);
-      this.showPlayer();
+        if (this.view.audio.ended) {
+            this.view.audio.currentTime = 0;
+        }
+        this.view.audio.play().catch(e => console.error("Error playing audio:", e));
+        this.model.isPlaying = true;
+        this.view.updatePlayIcon(true);
+        this.showPlayer();
+        
+        // Ensure the track is added to history when played
+        this.addTrackToHistory(this.model.getCurrentSong().id);
     } else {
-      this.view.audio.pause();
-      this.model.isPlaying = false;
-      this.view.updatePlayIcon(false);
-      this.hidePlayer();
+        this.view.audio.pause();
+        this.model.isPlaying = false;
+        this.view.updatePlayIcon(false);
+        this.hidePlayer();
     }
-    
-    this.model.saveToLocalStorage();
-  }
 
-  handlePrevButton() {
-    const prevSong = this.model.prevSong();
-    this.view.updateSong(prevSong);
-    this.view.audio.play().catch(e => console.error("Error playing audio:", e));
-    this.model.isPlaying = true;
-    this.view.updatePlayIcon(true);
     this.model.saveToLocalStorage();
-  }
+}
+
 
   handleNextButton() {
     const nextSong = this.model.nextSong();
@@ -101,6 +126,21 @@ class MusicPlayerController {
     this.model.isPlaying = true;
     this.view.updatePlayIcon(true);
     this.model.saveToLocalStorage();
+    
+    // Add track to history
+    this.addTrackToHistory(nextSong.id);
+  }
+
+    handlePrevButton() {
+    const prevSong = this.model.prevSong();
+    this.view.updateSong(prevSong);
+    this.view.audio.play().catch(e => console.error("Error playing audio:", e));
+    this.model.isPlaying = true;
+    this.view.updatePlayIcon(true);
+    this.model.saveToLocalStorage();
+    
+    // Add track to history
+    this.addTrackToHistory(prevSong.id);
   }
 
   handleShuffleButton() {
@@ -204,4 +244,5 @@ class MusicPlayerController {
       }, 1000);
     }
   }
+  
 }

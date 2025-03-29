@@ -1,6 +1,6 @@
-// /////////////// PLAYER //////////////////
 document.addEventListener("DOMContentLoaded", function () {
-  // Elements
+  console.log('Player script loaded'); 
+
   const playButton = document.getElementById("play-btn");
   const prevButton = document.getElementById("prev-btn");
   const nextButton = document.getElementById("next-btn");
@@ -22,7 +22,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const shuffleIcon = shuffleButton.querySelector("img"); 
 
   // Player state
-  let songs = [];
   let isShuffle = false;
   let shuffledPlaylist = [];
   let currentSongIndex = 0;
@@ -30,6 +29,8 @@ document.addEventListener("DOMContentLoaded", function () {
   let repeatMode = 0; // 0: no repeat, 1: repeat one, 2: repeat all
   let isMouseOverPlayer = false;
   let timeoutId;
+  let currentTrack = null;
+
 
   // Helper functions
   function changeIconWithTransition(iconElement, newSrc) {
@@ -39,6 +40,26 @@ document.addEventListener("DOMContentLoaded", function () {
       iconElement.style.opacity = "1";
     }, 10);
   }
+function getCurrentUserId() {
+  // Проверяем localStorage
+  const fromStorage = localStorage.getItem('userId');
+  if (fromStorage) {
+    console.log('Found userId in localStorage:', fromStorage);
+    return fromStorage;
+  }
+  
+  // Проверяем cookies (нужно, если используется HTTP-only cookie)
+  const cookies = document.cookie.split(';').map(c => c.trim());
+  const userIdCookie = cookies.find(c => c.startsWith('userId='));
+  if (userIdCookie) {
+    const userId = userIdCookie.split('=')[1];
+    console.log('Found userId in cookies:', userId);
+    return userId;
+  }
+  
+  console.warn('User ID not found in localStorage or cookies');
+  return null;
+}
 
   function formatTime(time) {
     const minutes = Math.floor(time / 60);
@@ -54,79 +75,131 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     return shuffled;
   }
-
-  function updateSongInfo() {
-    if (songs.length === 0) return;
-    
-    const song = isShuffle ? shuffledPlaylist[currentSongIndex] : songs[currentSongIndex];
-    songName.textContent = song.name || "Unknown song";
-    songArtist.textContent = song.artist || "Unknown artist";
-    songImage.src = song.image || "/images/default-cover.jpg";
-    audioPlayer.src = song.src || "";
-    audioPlayer.currentTime = 0; // Сбрасываем время при переключении песни
-    
-    localStorage.setItem("currentSongIndex", currentSongIndex);
-    localStorage.setItem("songSrc", song.src);
-    localStorage.setItem("songName", song.name);
-    localStorage.setItem("songArtist", song.artist);
+ function updateSongInfo() {
+  console.log("🔄 Вызов updateSongInfo()");
+  
+  if (!songs.length) {
+    console.error("⚠ Ошибка: нет песен в songs[]!");
+    currentTrack = null;
+    return;
   }
+
+  if (isShuffle && (!shuffledPlaylist || !shuffledPlaylist.length)) {
+    console.warn("⚠ Включен shuffle, но shuffledPlaylist пуст! Отключаю shuffle.");
+    isShuffle = false;
+  }
+
+  currentSongIndex = Math.max(0, Math.min(currentSongIndex, songs.length - 1));
+  currentTrack = isShuffle ? shuffledPlaylist[currentSongIndex] : songs[currentSongIndex];
+
+  if (!currentTrack) {
+    console.error("❌ Ошибка: currentTrack не был установлен!");
+    return;
+  }
+
+  console.log("✅ Текущий трек обновлён:", currentTrack);
+
+  songName.textContent = currentTrack.name;
+  songArtist.textContent = currentTrack.artist;
+  songImage.src = currentTrack.image || "/images/default-cover.jpg";
+  audioPlayer.src = currentTrack.src;
+}
+
+
+
+  async function addToHistory(trackId) {
+    try {
+      const userId = getCurrentUserId();
+      if (!userId) {
+        console.log('User not logged in, skipping history update');
+        return;
+      }
+
+      console.log(`Adding to history - User: ${userId}, Track: ${trackId}`);
+
+      const response = await fetch('/api/history/add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          trackId: trackId
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('History update failed:', error.message || error);
+      } else {
+        console.log('History successfully updated');
+      }
+    } catch (error) {
+      console.error('Error updating history:', error);
+    }
+  }
+
+window.playTrackById = function(trackId) {
+  const trackIndex = songs.findIndex(song => song.id === trackId);
+  if (trackIndex !== -1) {
+    currentSongIndex = trackIndex;
+    updateSongInfo();
+    audioPlayer.play()
+      .then(() => {
+        isPlaying = true;
+        playIcon.src = "/images/icons/pause-white.png";
+        localStorage.setItem("isPlaying", "true");
+        showPlayer();
+      })
+      .catch(e => {
+        console.error("Play error:", e);
+      });
+  }
+};
+
+let songs = [];
 
   // Load songs
   fetch('http://localhost:3000/api/tracks')
-    .then(response => {
-      if (!response.ok) throw new Error(`Server error: ${response.status}`);
-      return response.json();
-    })
-    .then(data => {
-      songs = data.filter(track => track.fileExists);
-      console.log('Loaded songs:', songs);
-      
-      // Load saved state
-      if (localStorage.getItem("currentSongIndex")) {
-        currentSongIndex = parseInt(localStorage.getItem("currentSongIndex"));
-        isPlaying = localStorage.getItem("isPlaying") === "true";
-        
-        updateSongInfo();
-        
-        if (isPlaying) {
-          audioPlayer.play().catch(e => console.error("Play error:", e));
-          playIcon.src = "/images/icons/pause-white.png";
-        }
-      } else if (songs.length > 0) {
-        updateSongInfo();
-      }
-    })
-    .catch(error => {
-      console.error('Error loading songs:', error);
-      songName.textContent = "Error loading songs";
-    });
+  .then(response => {
+    console.log("🔄 Получен ответ от API:", response);
+    return response.json();
+  })
+  .then(data => {
+    console.log("✅ Данные треков:", data);
+    songs = data.filter(track => track.fileExists?.audio);
+    console.log("🎵 Загружено песен:", songs.length, songs);
+
+    if (songs.length > 0) {
+      currentSongIndex = 0;
+      updateSongInfo();
+      console.log("✅ Первый трек установлен:", currentTrack);
+    } else {
+      console.error("⚠ Нет доступных треков!");
+    }
+  })
+  .catch(error => console.error("🚨 Ошибка загрузки треков:", error));
+
 
   // Event listeners
   playButton.addEventListener("click", () => {
-    if (audioPlayer.paused || audioPlayer.ended) {
-      if (audioPlayer.ended) audioPlayer.currentTime = 0;
-      audioPlayer.play()
-        .then(() => {
-          isPlaying = true;
-          playIcon.src = "/images/icons/pause-white.png";
-          localStorage.setItem("isPlaying", "true");
-          showPlayer();
-        })
-        .catch(e => {
-          console.error("Play error:", e);
-          // Если ошибка воспроизведения, сбрасываем состояние
-          isPlaying = false;
-          playIcon.src = "/images/icons/play-white.png";
-          localStorage.setItem("isPlaying", "false");
-        });
+  if (!currentTrack) {
+    console.warn("⚠ Нет текущего трека! Устанавливаю первый...");
+    if (songs.length > 0) {
+      currentSongIndex = 0;
+      updateSongInfo();
     } else {
-      audioPlayer.pause();
-      isPlaying = false;
-      playIcon.src = "/images/icons/play-white.png";
-      localStorage.setItem("isPlaying", "false");
-      hidePlayer();
+      console.error("❌ Ошибка: в songs[] вообще нет треков!");
+      return;
     }
-  });
+  }
+
+  if (audioPlayer.paused) {
+    audioPlayer.play().catch(console.error);
+  } else {
+    audioPlayer.pause();
+  }
+});
 
   nextButton.addEventListener("click", () => {
     if (songs.length === 0) return;
@@ -209,7 +282,6 @@ document.addEventListener("DOMContentLoaded", function () {
     } else if (repeatMode === 0) {
       nextButton.click();
     }
-    // Mode 2 (repeat all) is handled by audioPlayer.loop
   });
 
   audioPlayer.addEventListener("timeupdate", () => {
@@ -222,7 +294,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   audioPlayer.addEventListener("loadedmetadata", () => {
     totalDurationEl.textContent = formatTime(audioPlayer.duration);
-    // Убрано восстановление времени воспроизведения
   });
 
   progressBar.addEventListener("input", () => {
@@ -249,49 +320,90 @@ let isPlaying = false;
 let timeoutId;
 
 function showPlayer() {
-clearTimeout(timeoutId); 
-player.style.transform = "translateY(0)"; 
+  clearTimeout(timeoutId); 
+  player.style.transform = "translateY(0)"; 
 }
 
 function hidePlayer() {
-if (!isPlaying && !isMouseOverPlayer) {
-  timeoutId = setTimeout(() => {
-    player.style.transform = "translateY(100%)";
-  }, 1000);
-}
+  if (!isPlaying && !isMouseOverPlayer) {
+    timeoutId = setTimeout(() => {
+      player.style.transform = "translateY(100%)";
+    }, 1000);
+  }
 }
 
 document.addEventListener("mousemove", (event) => {
-const screenHeight = window.innerHeight;
-const threshold = 90; 
-if (event.clientY > screenHeight - threshold) {
-  showPlayer();
-} else if (!isPlaying) {
-  hidePlayer();
-}
+  const screenHeight = window.innerHeight;
+  const threshold = 90; 
+  if (event.clientY > screenHeight - threshold) {
+    showPlayer();
+  } else if (!isPlaying) {
+    hidePlayer();
+  }
 });
 
 player.addEventListener("mouseenter", () => {
-isMouseOverPlayer = true;
-showPlayer(); 
+  isMouseOverPlayer = true;
+  showPlayer(); 
 });
 
 player.addEventListener("mouseleave", () => {
-isMouseOverPlayer = false; 
-hidePlayer(); 
+  isMouseOverPlayer = false; 
+  hidePlayer(); 
 });
 
-audioPlayer.addEventListener("play", () => {
-isPlaying = true;
-showPlayer(); 
+audioPlayer.addEventListener('play', async () => {
+  console.log('[DEBUG] Play event triggered');
+  
+  if (!currentTrack) {
+    console.error('No current track selected');
+    return;
+  }
+
+  const userId = getCurrentUserId();
+  console.log('[DEBUG] UserID:', userId, 'TrackID:', currentTrack.id);
+
+  if (!userId) {
+    console.log('User not authenticated, skipping history update');
+    return;
+  }
+
+  try {
+    console.log('[DEBUG] Sending history update:', {
+      userId,
+      trackId: currentTrack.id
+    });
+
+    const response = await fetch('/api/history/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        userId: userId,
+        trackId: currentTrack.id
+      })
+    });
+
+    console.log('[DEBUG] Response status:', response.status);
+    const data = await response.json();
+    console.log('[DEBUG] Response data:', data);
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to update history');
+    }
+  } catch (error) {
+    console.error('History update error:', error);
+  }
 });
 
 audioPlayer.addEventListener("pause", () => {
-isPlaying = false; 
-hidePlayer(); 
+  isPlaying = false; 
+  hidePlayer(); 
 });
 
 audioPlayer.addEventListener("ended", () => {
-isPlaying = false; 
-hidePlayer();
+  isPlaying = false; 
+  hidePlayer();
 });
