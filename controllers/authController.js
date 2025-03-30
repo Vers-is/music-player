@@ -23,7 +23,6 @@ class AuthController {
       
       const token = await authService.generateToken(user.id);
       
-      // Set HTTP-only cookie
       res.cookie('auth_token', token, {
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 24 hours

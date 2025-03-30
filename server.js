@@ -26,13 +26,14 @@ app.use(cookieParser());
 
 // ✅ Добавляем поддержку сессий
 app.use(session({
-  secret: process.env.SESSION_SECRET || "supersecretkey",
-  resave: false,
-  saveUninitialized: false,
+  secret: process.env.SESSION_SECRET || "220906",
+  resave: true, 
+  saveUninitialized: true, 
   cookie: {
     httpOnly: true,
-    secure: false, // true, если используете HTTPS
-    sameSite: "Lax"
+    secure: false,
+    sameSite: 'Lax',
+    maxAge: 24 * 60 * 60 * 1000 
   }
 }));
 

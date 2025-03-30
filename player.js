@@ -310,8 +310,8 @@ let songs = [];
     volumeControl.value = localStorage.getItem("volume");
     audioPlayer.volume = volumeControl.value;
   }
-});
-/////////////////// DISPLAY BOTTOM PLAYER
+ });
+// /////////////////// DISPLAY BOTTOM PLAYER
 
 const player = document.querySelector(".player");
 const audioPlayer = document.querySelector("audio"); 

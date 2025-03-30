@@ -7,16 +7,15 @@ async function initializeDatabase() {
   try {
     // Force: true will drop tables if they exist
     // Set to false in production
-    await sequelize.sync({ force: true }); // Удаляет старую таблицу и создает новую
+    await sequelize.sync({ force: true }); 
     console.log('Database & tables created!');
 
     try {
-      // You can seed some initial data if needed
       await User.create({
         username: 'admin',
         password: '$2b$10$XuEuCoKbXUXvLYe/DQUkT.P8CjsOoff0BRsLJSeQgO/CcdMFaKzXO', // hashed 'admin123'
         email: 'admin@example.com',
-        avatar: '/uploads/default-avatar.png', // Исправлено: avatarUrl -> avatar
+        avatar: '/uploads/default-avatar.png', 
         isAdmin: true,
       });
       console.log('Initial data seeded!');

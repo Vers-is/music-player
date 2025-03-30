@@ -1,4 +1,4 @@
-const User = require("../models/UserModel"); // Add this import at the top
+const User = require("../models/UserModel"); 
 
 const authMiddleware = async (req, res, next) => {
     try {

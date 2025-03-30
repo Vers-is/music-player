@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
 
-// Функция для логирования в файл
 const logErrorToFile = (error) => {
   const logFile = path.join(__dirname, 'logs', 'error.log');
   const errorMessage = `[${new Date().toISOString()}] ${error.stack || error.message}\n`;

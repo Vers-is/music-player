@@ -8,7 +8,6 @@ module.exports = (sequelize) => {
 
   const checkFileExists = (filePath) => {
     try {
-      // Удаляем начальный /public из пути, если он есть
       const normalizedPath = filePath.startsWith('/public/') 
         ? filePath.substring('/public/'.length)
         : filePath.startsWith('public/')
